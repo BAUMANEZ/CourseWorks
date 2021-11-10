@@ -1,0 +1,192 @@
+\documentclass[unicode]{beamer}
+%\usetheme{CambridgeUS}
+%\usetheme{Boadilla}
+%\usetheme{Berkeley}
+\usetheme{Goettingen}
+%\usecolortheme{beaver}
+\usecolortheme{seahorse}     %цветовая схема
+%\useoutertheme{smoothbars}
+\useinnertheme{circles}   %внутренняя тема
+\usefonttheme{serif}    %шрифты
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[russian]{babel}
+
+
+\title[Курсовая работа]{Построение решений типа бегущей волны уравнений Бюргерса и Кортвега-де Фриза}
+\author[М.А.~Михайлов]{М.А.~Михайлов}
+\institute[]{МГТУ им. Н.Э. Баумана}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Содержание}
+\tableofcontents
+\end{frame}
+
+\section[Постановка задачи]{Постановка задачи}
+Уравнение Бюргерса имеет вид:
+\begin{equation} \label{Bur}
+u_t+uu_x={\mu}u_{xx},
+\end{equation}
+а Кортвега-де Фриза:
+\begin{equation} \label{Court}
+u_t+uu_x+{\varepsilon}u_{xxx}=0.
+\end{equation}
+Будем искать решения этих уравнений типа бегущей волны:
+\begin{equation} \label{WF}
+u(t,x)=v(y),\quad y=x-at.
+\end{equation}
+В первом случае поставим краевые условия вида:
+\begin{equation}\label{starteqB}
+v(y) = 
+ \begin{cases}
+   1,\quad y\to-{\infty}, \\
+   0,\quad y\to+{\infty},
+ \end{cases}
+\end{equation}
+и во втором -- вида:
+\begin{equation} \label{starteqC}
+v(y) = 0,\quad y\to{\infty}.
+\end{equation}
+
+
+\section{ Решение уравнения Бюргерса}
+Для уравнения Бюргерса \eqref{Bur} получаем дифференциальное  уравнение второго порядка:
+\begin{equation} \label{DUB}
+-av^\prime+vv^\prime={\mu}v^{\prime\prime}.
+\end{equation}
+Cделав замену $v^\prime=p(y)$, $v^{\prime\prime}=p^\prime p$, получим дифференциальное уравнение первого порядка:
+\begin{equation} \label{DUB1}
+-ap+pv={\mu}pp^\prime.
+\end{equation}
+\[
+\mu p=-av+\frac{v^2}{2},
+\]
+\begin{equation} \label{DUBI}
+\mu v^\prime=-av+\frac{v^2}{2}.
+\end{equation}
+Подставив \eqref{starteqB}  в \eqref{DUBI}, найдем $a$:
+\[
+-a+\frac{1}{2}=\mu\cdot0, \quad\Rightarrow\quad a=\frac{1}{2}
+\]
+Следовательно, \eqref{DUBI} принимает вид:
+\begin{equation} \label{DUBI1}
+\frac{-v}{2}+\frac{v^2}{2}={\mu}\frac{dv}{dy}
+\end{equation}
+Решением \eqref{DUB1} является:
+\begin{equation} \label{SolveD}
+v=\frac 1{1+e^{\frac{ y}{2\mu}}}.
+\end{equation}
+При помощи системы компьютерной алгебры Wolfram Mathematica  построим график решения \eqref{SolveD}.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{B2D.pdf}
+\caption{Решение уравнения Бюргерса.}
+\label{ris:image}
+\end{figure}
+Подставим \eqref{SolveD} в формулу $u(t,x)=v(x-at)$. Получим решение:  $u(t,x)=\frac1{1+e^{\frac{1}{2\mu}\left(\frac{-t}{2}+x\right)}}.$
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{bu3D.png}
+\caption{Решение уравнения Бюргерса типа бегущей волны.}
+\label{ris:imageB}
+\end{figure}
+\newpage
+Представим графики решения при фиксированных $t$ и $\mu$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{B0.pdf}
+\caption{График решения при $t=0$.}
+\label{ris:imageBt0}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{B50.pdf}
+\caption{График решения при $t=50$.}
+\label{ris:imageBt50}
+\end{figure}
+\newpage
+\section{ Решение уравнения Кортвега-де Фриза}
+Для уравнения Кортвега-де Фриза \eqref{Court} получим нелинейное дифференциальное уравнение третьего порядка:
+\begin{equation} \label{DUC}
+-av^\prime+vv^\prime+{\varepsilon}v^{\prime\prime\prime}=0.
+\end{equation}
+Уравнение один раз легко интегрируется:
+\begin{equation} \label{DUC1}
+-av+\frac {v^2}{2}+{\varepsilon}v^{\prime\prime}+c_1=0,
+\end{equation}
+Сделав замену $v^\prime(y)=p(y)$, $v^{\prime\prime}=p^\prime p$, получим дифференциальное уравнение первого порядка:
+\begin{equation} \label{DUC2}
+pp^\prime=\frac{av}{\varepsilon}-\frac{v^2}{2\varepsilon},
+\end{equation}
+\[
+\frac {p^2}2= \frac{av^2}{2\varepsilon}-\frac{v^3}{6\varepsilon},
+\]
+\begin{equation} \label{DUCI}
+ v^\prime=\sqrt{\frac{av^2}{\varepsilon}-\frac{v^3}{3\varepsilon}}.
+\end{equation}
+Решением \eqref{DUCI} будет являться:
+\begin{equation} \label{SolveC}
+v=\frac{3a}{\ch^2\left(\frac {\sqrt{\frac{a}{\varepsilon}}y}{2}\right)}.
+\end{equation}
+Построим график решения \eqref{SolveC}.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{COURT.pdf}
+\caption{Решение уравнения Кортвега-де Фриза при различных $a$ и $\varepsilon$.}
+\label{ris:imageC2D}
+\end{figure}
+Подставив  $y=x-at$ в соотношение \eqref{SolveC}, получим решение задачи \eqref{Court}, \eqref{starteqC} типа бегущей волны:
+\begin{equation} \label{RUN}
+u(t,x)=\frac{3a}{\ch^2\left(\frac{\sqrt{\frac{a}{\varepsilon}}(x-at)}{2}\right)}.
+\end{equation}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.25]{Court3D.png}
+\caption{Решение уравнения Кортвега-де Фриза типа бегущей волны.}
+\label{ris:imageC3D}
+\end{figure}
+Представим графики решения \eqref{RUN} при фиксированных $t$ и $\varepsilon$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.9]{C1.pdf}
+\caption{График решения при $t=1$.}
+\label{ris:imageCt1}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.9]{C50.pdf}
+\caption{График решения при $t=50$.}
+\label{ris:imageCt50}
+\end{figure}
+\section{Заключение}
+\newpage
+Аналитически найдены решения типа бегущей волны уравнений Бюргерса и Кортвега-де Фриза. Исследована зависимость полученных решений от параметров $\mu$ и $\varepsilon$ соответственно. Построены графики решений в системе компьютерной алгебры Wolfram Mathematica.
+
+% Литература %
+\newpage
+\section{Список использованных источников}
+\begin{thebibliography}{12}
+\bibitem{Ryskin} Рыскин Н.\,М., Трубецков Д.\,И. Нелинейные волны / М.: <<Наука>>, 1984. 306 с.
+\bibitem{Shapiro} Шапиро Д.\,А. Уравнения в частных производных. Специальные функции. Асимптотики  / М.: Изд-во НГУ, 2004. 123 с
+\bibitem{Elsholz} Эльсгольц Л.\,Э.  Дифференциальные уравнения и вариационное исчисление. / М.: <<Наука>>, 1965. 424 с.
+\bibitem{Filippov} Филиппов А.\,Ф. Сборник задач по дифференциальным уравнениям. / М.: ЛЕНАНД, 2019. 240 с.
+\end{thebibliography}
+\newpage
+
+
+
+
+
+
+
+\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\vspace{1mm}\centering \bf{Спасибо за внимание!}
+\end{document}
