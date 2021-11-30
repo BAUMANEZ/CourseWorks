@@ -88,7 +88,7 @@
       \begin{split}
         du_1 &= \dfrac{\partial u_1}{\partial x}dx + \dfrac{\partial u_1}{\partial y}dy + \dfrac{\partial u_1}{\partial z}dz = \Delta_{11}dx + \Delta_{12}dy + \Delta_{13}dz  \\[0.7em]
         du_2 &= \dfrac{\partial u_2}{\partial x}dx + \dfrac{\partial u_2}{\partial y}dy + \dfrac{\partial u_2}{\partial z}dz = \Delta_{21}dx + \Delta_{22}dy + \Delta_{23}dz\\[0.7em]
-        du_3 &= \dfrac{\partial u_3}{\partial x}dx + \dfrac{\partial u_3}{\partial y}dy + \dfrac{\partial u_3}{\partial z}dz = \Delta_{31}dx + \Delta_{22}dy + \Delta_{33}dz \\
+        du_3 &= \dfrac{\partial u_3}{\partial x}dx + \dfrac{\partial u_3}{\partial y}dy + \dfrac{\partial u_3}{\partial z}dz = \Delta_{31}dx + \Delta_{32}dy + \Delta_{33}dz \\
       \end{split}
     \]
 
@@ -127,7 +127,7 @@
     Запишем в более лаконичном виде:
     \begin{equation}
       \begin{split}
-        (dl^')^2 &= (dl)^2 + 2 \dfrac{\partial u_k}{\partial x_l} dx_l dx_k + \Bigl(\dfrac{\partial u_k}{\partial x_l} dx_k^i\Bigr)^2
+        (dl^')^2 &= (dl)^2 + 2 \dfrac{\partial u_k}{\partial x_l} dx_l dx_k + \Bigl(\dfrac{\partial u_k}{\partial x_l} dx_l \Bigr)^2
       \end{split}
     \end{equation}
 
@@ -153,6 +153,8 @@
       \varepsilon_{kl}^0 = \alpha_{kl}^T \Delta T \Rightarrow \varepsilon_{kl}^0 \sim \alpha_{kl}^T,
     \]
     \noindent где $ \alpha_{kl}^T $ -- компоненты тензора теплового расширения.
+
+    \subsection{Определяющее соотношение (закон Гука)}
 
     \section-{Заключение}
     
