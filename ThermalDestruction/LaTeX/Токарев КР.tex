@@ -7,7 +7,7 @@
 \usepackage{geometry}
 \usepackage{mathtools}
 \usepackage{tikz}
-\usepackage{chngcntr}
+\usepackage{pdfpages}
 
 \counterwithout{equation}{section}
 \counterwithout{figure}{section}
@@ -57,6 +57,17 @@
 
     \section-{Введение}
     
+    Анализ прочности является очень важной задачей при проверке работоспособности конструкций. Вот почему задача разрушения является очень актуальной. Стоит отметить, что она еще не так подробно исследована и вызывает немало трудностей при моделировании, так как необходимо учитывать внешние условия, структуру материала, нагрузки, существование внутренних дефектов и т.д.
+    
+    Разрушунием называют процесс нарушения целостности конструкции, происходящее вследствие изменения формы и накопления повреждений. Наиболее опасные области, инициализирующие процесс разрушения, -- трещины. Основная цель задачи прочности -- предсказание различных сценариев развития разрушения.
+
+    Выделяют всего два типа разрушения: хрупкое и вязкое. При хрупком разрушении размер области пластической деформации пренебрежимо мал в сравнении с размером трещины, и оно неразрывно связано с процессом накопления рассеянных повреждений и распространения изолированных трещин.
+
+    В процессе разрушения возникают либо рассеянные дефекты, либо многочисленные. Хрупкое разрушение провоцирует появление многочисленных трещин, сопоставимых с размерами тела, их будем называть магистральными трещинами. В области нашего интереса лежат модели, которые учитывают накопление повреждений перед появлением магистральной трещины, а также ее развития. Вот почему более интересным в случае хрупкого разрушения является эффективный подход, который дает возможность наблюдать за изменением напряженно-деформированного состояния тела. 
+
+    Одним из интересных примеров задач прочности -- моделирование разрушения топливных таблеток в ядерных реакторах (диоксид урана $U O_2$), которые располагаются внутри герметично закрытых тепловыделяющих элементов, которые называют ТВЭЛами. 
+    
+    Целью работы является построение одномерной модели разрушения стержня, состоящего из диоксида урана, а также решение задачи термоупругости с помощью разностной схемы.
 
     \section{Постановка задачи}
 
@@ -394,13 +405,14 @@
   \section{Одномерный случай}
 
   В качестве численного метода применим метод дополнительных деформаций. Как было отмечено раннее, до достижения предела прочности тело ведет себя, как линейно-упругое, а затем происходит разгрузка по нелинейному закону. Тогда зависимость напряжений от деформации определяется условиями:
-  \[
+  \begin{equation}
     \sigma(\varepsilon) = 
     \begin{cases}
       E\varepsilon^e, & E\varepsilon^e < \sigma_f^v(\varepsilon); \\
       \sigma_f \Bigl( A + B e^{-C \tfrac{\varepsilon^e}{\varepsilon_f}} \Bigr), & E\varepsilon^e \geq \sigma_f^v(\varepsilon);
     \end{cases}
-  \]
+    \label{sigma}
+  \end{equation}
 
   \noindent где $\varepsilon^e$ -- упругая деформация, $\sigma_f^v(\varepsilon)$ -- переменный предел прочности, который в недеформированном состоянии равен пределу прочности при растяжении $\sigma_f$, $E$ -- модуль Юнга.
 
@@ -425,14 +437,14 @@
 
   Будем прикладывать знакопеременную нагрузку по закону:
   \[
-    T(x, t) = \widetilde{T} + F(x) t \sin(t),
+    T(x, t) = \widetilde{T} + F(x) \tau(t),
   \]
-  \noindent где $\widetilde{T}$ -- усредненная по времени температура, $F(x)$ -- функция, описывающее пространтсвенное распределение температуры.
+  \noindent где $\widetilde{T}$ -- усредненная по времени температура, $F(x)$ -- функция, описывающее пространтсвенное распределение температуры, а $\tau(t)$ -- временное.
 
   Опишем математическую модель для одномерного стержня:
   \begin{equation}
     \begin{cases}
-      T(x, t) = \widetilde{T} + F(x) t \sin(t), & t \geq 0, \quad 0 \leq x \leq l, \\[0.7em]
+      T(x, t) = \widetilde{T} + F(x) \tau(t), & t \geq 0, \quad 0 \leq x \leq l, \\[0.7em]
       \dfrac{\partial \sigma}{\partial x} = 0, & 0 \leq x \leq l, \\[0.7em]
       \sigma = \sigma(\varepsilon - \varepsilon^0), \\[0.7em]
       \varepsilon = \dfrac{\partial u}{\partial x}, \\[0.7em]
@@ -444,8 +456,312 @@
 
   Выберем функцию $F(x)$ симметричной относительно середины стержня. Пусть $F(x) = \sin(\tfrac{\pi x}{l})$. Будем решать задачу методом конечных разностей.
 
-    \section-{Заключение}
+  \section{Результаты вычислений}
+
+  Пока значения напряжения меньше предела прочности $\sigma_f$ имеет место линейный случай системы (\refeq{sigma}), для которого можно найти аналитическое решение:
+  \begin{equation}
+    \begin{split}
+      &\sigma(\varepsilon) = E\varepsilon^e = E(\varepsilon - \varepsilon^T) = E \Bigl(\dfrac{\partial u}{\partial x} - \alpha(T(x,t) - T_0 ) \Bigr) \\[0.7em]
+      &\dfrac{\partial \sigma}{\partial x} = E(u_{xx} - \alpha \, T_x (x, t)) \Rightarrow u_{xx} - \alpha \, T_x (x, t) = 0
+    \end{split}
+    \label{linearSigma}
+  \end{equation}
+
+  Когда $\sigma \geq \sigma_f$, материал разгружается по нелинейному знакому, будем использовать метод Ньютона для линеаризации нелинейного уравнения.
+
+  Физические характеристики диоксида урана: $\alpha = 10^{-5} K^{-1}$, $\widetilde{T} = T_0 = 300 K$, $E = 1.75 \cdot 10^{11}$ Па, $\sigma_f = 1.1 \cdot 10^8$ Па, $\varepsilon_f = 0.000628571$. Длина стержня $l = 1$ м, измерения длятся $T_f = 22$ сек. Пусть $a = 50$.
+
+  Рассмотрим поведение одномерного стержня на четырех периодах нагружения. Поведение стержня будем рассматривать на четырех периодах нагружения в точке $x = h$, где $h$ -- шаг сетки.
+
+  \begin{enumerate}
+    \item $T(x, t) = \widetilde{T} + F(x) t \sin t, \quad F(x) = a \sin \Bigl( \dfrac{\pi x}{l} \Bigr)$
     
+    Аналитическое решение (\refeq{linearSigma}):
+    \[
+      u(x, t) = \dfrac{a l t \alpha \sin(t) - 2 a t x \alpha \sin(t) - a l t \alpha \cos (\tfrac{\pi x}{l}) \sin t}{\pi}.
+    \]
+
+    \centerline{$t = 1$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.05   & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.05   & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.05   & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.05   & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.05   & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \pagebreak
+
+    \centerline{$t = 5$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.05   & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.05   & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.05   & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.05   & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.05   & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{1cm}
+
+    \centerline{$t = 10$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.05   & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.05   & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.05   & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.05   & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.05   & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{1cm}
+
+    \centerline{$t = 20$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.05   & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.05   & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.05   & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.05   & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.05   & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{0.7em}
+
+    Из графика видно, что сначала происходит равномерное нагружение (до достижения переменного предела прочности $\sigma_f^v$), и материал ведет себя, как линейно-упругий, а затем происходит разрузка по нелинейному убывающему закону. Затем происходит повторный этап нагружения. 
+
+    График зависимости деформаций имеет ступенчатый вид, что подтверждает цилкичность процесса <<нагрузка-разрузка>>, а также способность модели накапливать информацию о разрушении стержня в предыдущие моменты времени. 
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T1/h_1_tau_0.05/epsilon(t).pdf}
+      \caption{Зависимость полной деформации от времени}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T1/h_1_tau_0.05/epsilon_crk(t).pdf}
+      \caption{Зависимость деформаций за счет трещин от времени}
+    \end{figure}
+
+    \pagebreak
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T1/h_1_tau_0.05/sigma(t).pdf}
+      \caption{Зависимость напряжений от времени}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T1/h_1_tau_0.05/sigma(epsilon).pdf}
+      \caption{Зависимость напряжений от деформаций}
+    \end{figure}
+
+    \pagebreak
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T1/h_1_tau_0.05/norm_sigma(epsilon).pdf}
+      \caption{Зависимость напряжений от деформаций по отношению к пределу прочности}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T1/h_1_tau_0.05/T(t).pdf}
+      \caption{Зависимость температуры от времени}
+    \end{figure}
+    
+    \pagebreak
+
+    \item $T(x, t) = \widetilde{T} + F(x) \cos (\pi t^2) (t + 1), \quad F(x) = a \sin \Bigl( \dfrac{\pi x}{l} \Bigr)$
+    
+    Аналитическое решение (\refeq{linearSigma}):
+    \[
+      u(x, t) = -\dfrac{\alpha a (t+1) \cos (\pi t^2) (2x - l + l \cos (\tfrac{\pi x}{l}))}{\pi}.
+    \]
+
+    \centerline{$t = 1$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.005  & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.005  & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.005  & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.005  & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.005  & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{1cm}
+
+    \centerline{$t = 5$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.005  & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.005  & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.005  & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.005  & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.005  & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{1cm}
+
+    \centerline{$t = 10$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.005  & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.005  & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.005  & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.005  & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.005  & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \pagebreak
+
+    \centerline{$t = 20$}
+    \vspace{0.5em}
+    \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $i$ & $h$     & $\tau$ & $|| error ||_C$ & $|| error_i ||_C \, / \, || error_{i+1} ||_C$ \\
+        \hline
+        1   & 0.1     & 0.005  & 3 & 3 \\
+        \hline 
+        2   & 0.05    & 0.005  & 3 & 3 \\
+        \hline
+        3   & 0.025   & 0.005  & 3 & 3 \\
+        \hline
+        4   & 0.0025  & 0.005  & 3 & 3 \\
+        \hline 
+        5   & 0.00125 & 0.005  & 3 & 3 \\
+        \hline
+      \end{tabular}
+    \end{center}
+
+    \vspace{0.5em}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T2/h_1_tau_0.005/epsilon(t).pdf}
+      \caption{Зависимость полной деформации от времени}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T2/h_1_tau_0.005/epsilon_crk(t).pdf}
+      \caption{Зависимость деформаций за счет трещин от времени}
+    \end{figure}
+
+    \pagebreak
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T2/h_1_tau_0.005/sigma(t).pdf}
+      \caption{Зависимость напряжений от времени}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.725\textwidth]{T2/h_1_tau_0.005/sigma(epsilon).pdf}
+      \caption{Зависимость напряжений от деформаций}
+    \end{figure}
+
+    \pagebreak
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T2/h_1_tau_0.005/norm_sigma(epsilon).pdf}
+      \caption{Зависимость напряжений от деформаций по отношению к пределу прочности}
+    \end{figure}
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.68\textwidth]{T2/h_1_tau_0.005/T(t).pdf}
+      \caption{Зависимость температуры от времени}
+    \end{figure}
+    
+    \pagebreak
+  \end{enumerate}
+
+  \includepdf[pages=1,offset=0 -40,pagecommand={\subsection{Программная реализация}}, fitpaper=true]{code.pdf}
+  \includepdf[pages=2-, offset=0 -20, pagecommand={}, fitpaper=true]{code.pdf}
+
+    \section-{Заключение}
+
+    Была исследована математическая модель разрушения стержня, состоящего из диоксида урана. Был проведен графический анализ распространения трещин, основанный на графиках напряжений и перемещений.
+
+    Решение вышеуказанной задачи было реализовано в системе компьютерной алгебры Wolfram Mathematica.
+
     \newpage
 
     \begin{thebibliography}{9}
