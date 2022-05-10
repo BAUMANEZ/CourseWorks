@@ -1,0 +1,79 @@
+\documentclass[12pt,a4paper]{article} 
+
+\usepackage{fn2kursstyle}
+\usepackage[russian]{babel}
+\usepackage[T2A]{fontenc} 
+\usepackage[utf8]{inputenc} 
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pdfpages}
+\usepackage[hidelinks]{hyperref}
+
+\counterwithout{equation}{section}
+\counterwithout{figure}{section}
+\graphicspath{{pic/}}
+\frenchspacing 
+
+\makeatletter
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\title{МАТЕМАТИЧЕСКОЕ МОДЕЛИРОВАНИЕ ТЕРМОУПРУГОГО РАЗРУШЕНИЯ ХРУПКОГО МАТЕРИАЛА}
+\group{ФН2-52Б}
+\author{А.\,И.~Токарев}
+\supervisor{М.\,П.~Галанин}
+\date{2021}
+
+\DeclareMathOperator{\Tr}{tr}
+
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+\makeatletter
+\newenvironment{sqcases}{%
+  \matrix@check\sqcases\env@sqcases
+}{%
+  \endarray\right.%
+}
+\def\env@sqcases{%
+  \let\@ifnextchar\new@ifnextchar
+  \left\lbrack
+  \def\arraystretch{1.2}%
+  \array{@{}l@{\quad}l@{}}%
+}
+\makeatother
+
+\makeatletter
+\newcommand{\oset}[3][0ex]{%
+  \mathrel{\mathop{#3}\limits^{
+    \vbox to#1{\kern-2\ex@
+    \hbox{$\scriptstyle#2$}\vss}}}}
+\makeatother
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    \pagebreak
+
+    \section-{Введение}
+    
+    \section{Постановка задачи}
+
+    \section-{Заключение}
+
+    \begin{thebibliography}{9}
+  
+      \bibitem{Karelia} Тензоры напряжений и деформаций. URL: \url{http://solidstate.karelia.ru/p/tutorial/ftt/Part4/part4_1.htm}
+
+      \bibitem{Deform} Тензор деформаций. SolverBook - онлайн сервисы для учебы. URL: \url{http://ru.solverbook.com/spravochnik/fizika/tenzor-deformacii/}
+
+      \bibitem{Flex} Теория упругости. Wikipedia –- свободная энциклопедия. URL: \url{https://en.wikipedia.org/wiki/Linear_elasticity}
+
+      \bibitem{Galanin} Галанин М.П. Методы численного анализа математических моделей/М.П. Галанин, Е.Б. Савенков.–М. : Изд-во МГТУ им. Н.Э. Баумана, 2010.–591, [1] с.: ил. (Математическое моделирование в технике и технологии)
+
+      \bibitem{GalaninAndOthers} Математическое моделирование разрушения хрупкого материа- ла под действием тепловых нагрузок / М.П. Галанин [и др.] // Препринты ИПМ им. М.В. Келдыша. 2013.No 100. 36 с. URL: \url{http://library.keldysh.ru/preprint.asp?id=2013-100}
+
+    \end{thebibliography}
+
+    \end{document}
