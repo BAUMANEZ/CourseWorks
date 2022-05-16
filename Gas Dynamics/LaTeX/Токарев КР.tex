@@ -15,41 +15,11 @@
 \graphicspath{{pic/}}
 \frenchspacing 
 
-\makeatletter
-\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
-\makeatother
-
 \title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ ЗАДАЧ ГАЗОВОЙ ДИНАМИКИ}
 \group{ФН2-62Б}
 \author{А.\,И.~Токарев}
 \supervisor{В.\,В.~Лукин}
 \date{2022}
-
-\DeclareMathOperator{\Tr}{tr}
-
-\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
-            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
-
-\makeatletter
-\newenvironment{sqcases}{%
-  \matrix@check\sqcases\env@sqcases
-}{%
-  \endarray\right.%
-}
-\def\env@sqcases{%
-  \let\@ifnextchar\new@ifnextchar
-  \left\lbrack
-  \def\arraystretch{1.2}%
-  \array{@{}l@{\quad}l@{}}%
-}
-\makeatother
-
-\makeatletter
-\newcommand{\oset}[3][0ex]{%
-  \mathrel{\mathop{#3}\limits^{
-    \vbox to#1{\kern-2\ex@
-    \hbox{$\scriptstyle#2$}\vss}}}}
-\makeatother
 
 \begin{document}
     \maketitle
@@ -57,23 +27,18 @@
     \pagebreak
 
     \section-{Введение}
+    Одним из наиболее удачных вычислительных методов решения гиперболических уравнений является кусочно-параболический метод (с англ. Piecewise-Parabolic Method, PPM), разработанный для моделирования течения жидкостей и газов и применяемый в астрофизике. Он обладает порядком аппроксимации $ O(\tau^2 + h^3) $. Несмотря на великолепную точность, данный метод имеет ряд недостатков: концы парабол на разностных ячейках связываются путем реконструкции переменных на расширенном четырехточечном шаблоне, что повышает диссипацию в схеме. Кроме того, PPM дает достаточно точный результат на гадких решениях, а вот на разрывах происходят ощутимые осцилляции.
+
+    Целью данной курсовой работы является анализ улучшенного метода PPM -- кусочно-параболический метод на локальном шаблоне (PPML). Его основное отличие заключается в том, что граничные точки парабол внутри разностых ячеек определяются с предыдущего временного слоя по методу характеристик, что позволяет точно описывать разрывные решения и избегать накопления лишней диссипации.
+    
+    В качестве анализа будет приведено сравнение точности методов PPM и PPML на примерах одномерных задач. Также проведем демонстрацию рассматриваемого метода на нескольких двумерных задач газовой динамики.
+
+    \newpage
     
     \section{Постановка задачи}
 
+    \subsection{Кусочно-параболический метод. PPM}
+
     \section-{Заключение}
-
-    \begin{thebibliography}{9}
-  
-      \bibitem{Karelia} Тензоры напряжений и деформаций. URL: \url{http://solidstate.karelia.ru/p/tutorial/ftt/Part4/part4_1.htm}
-
-      \bibitem{Deform} Тензор деформаций. SolverBook - онлайн сервисы для учебы. URL: \url{http://ru.solverbook.com/spravochnik/fizika/tenzor-deformacii/}
-
-      \bibitem{Flex} Теория упругости. Wikipedia –- свободная энциклопедия. URL: \url{https://en.wikipedia.org/wiki/Linear_elasticity}
-
-      \bibitem{Galanin} Галанин М.П. Методы численного анализа математических моделей/М.П. Галанин, Е.Б. Савенков.–М. : Изд-во МГТУ им. Н.Э. Баумана, 2010.–591, [1] с.: ил. (Математическое моделирование в технике и технологии)
-
-      \bibitem{GalaninAndOthers} Математическое моделирование разрушения хрупкого материа- ла под действием тепловых нагрузок / М.П. Галанин [и др.] // Препринты ИПМ им. М.В. Келдыша. 2013.No 100. 36 с. URL: \url{http://library.keldysh.ru/preprint.asp?id=2013-100}
-
-    \end{thebibliography}
 
     \end{document}
