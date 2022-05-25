@@ -65,7 +65,7 @@
 
    Значение функции $ y(x) $ на границах при условиях гладкости и отсутствия экстремумов принадлежит отрезкам:
    \begin{equation}
-        \label{boundary_nodes}
+        \label{ppm_boundary}
         y_{i-\half} \in [y_{i-1}, y_i], \qquad y_{i+\half} \in [y_i, y_{i+1}], 
    \end{equation}
    \noindent что дает возможность установить соответствие граничных узлов на соседних ячейках:
@@ -80,7 +80,7 @@
         \delta y_i = \dhalf(y_{i+1} + y_{i-1}).
    \]
 
-    Эта интерполяционная процедура имеет четвертый порядок. Чтобы обеспечить монотонность решения и выполнить условие \eqref{boundary_nodes}, значения $ \delta y_i $ нужно заменить на 
+    Эта интерполяционная процедура имеет четвертый порядок. Чтобы обеспечить монотонность решения и выполнить условие \eqref{ppm_boundary}, значения $ \delta y_i $ нужно заменить на 
     \[
         \delta_m y_i = 
         \begin{cases}
@@ -91,28 +91,85 @@
 
     В областях немонотонного решения $ y(x) $ следует переопределять значения на границах, то есть $ y_i^L,\, y_i^R $. При этом возможны два сценария:
     \begin{itemize}
-        \item $ y_i $ является локальным экстремумом, тогда на всем отрезке $ [x_{i-\half}, x_{i+\half}] $ функция $ y(x) = \text{const} $, а значит $ y_i^L = y_i^R = y_i $.
-        
+        \item $ y_i $ является локальным экстремумом, тогда на всем отрезке $ [x_{i-\half}, x_{i+\half}] $ функция $ y(x) = \text{const} $, а значит:
+        \begin{equation}
+            \label{local_sup}
+            y_i^L = y_i^R = y_i, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0;
+        \end{equation}
+                
         \item $ y_i $ лежит слишком близко к границе, а при условии $|\Delta y_i| < | y_i^{(6)} |$ парабола может иметь экстремум внутри разностной ячейки. В этом случае $ y_i^L $ и $ y_i^R $ должны быть выбраны так, чтобы сдвинуть его к границам:
-        \[
+        \begin{equation}
+            \label{boundary_sup}
             \begin{split}
                 y_i^L = 3y_i -2y_i^R, &\quad \Delta y_i \cdot y_i^{(6)} > (\Delta y_i)^2, \\
                 y_i^R = 3y_i -2y_i^L, &\quad \Delta y_i \cdot y_i^{(6)} < -(\Delta y_i)^2.
             \end{split}  
-        \]
+        \end{equation}
     \end{itemize}
 
-    После всех проделанных операция функцию $y(x)$ можно считать определенной на сетке $\Omega_h$. Рассмотрим среднее значение данной функции на отрезке $ [x_{i+\half-\alpha}, x_{i+\half}] $ (при $\alpha$ > 0):
-    \[
-        \overline y_{i+\half}^L(\alpha) = \dfrac{1}{\alpha} \displaystyle \int_{x_{i+\half-\alpha}}^{x_{i+\half}} y(x) dx = y_i^R - \dfrac{\alpha}{2h}\Bigl[ \Delta y_i - \Bigl( 1 - \dfrac{2 \alpha}{3h} \Bigr)y_i^{(6)} \Bigr].
-    \]
-    \begin{center}
-        **** Линейное уравнение переноса и потоки ****
-    \end{center}
+    После всех проделанных операция функцию $y(x)$ можно считать определенной на сетке $\Omega_h$. 
+    
+    Cреднее значение данной функции на отрезке $ [x_{i+\half}-\alpha, x_{i+\half}], (\alpha > 0) $ задается формулой:
+    \begin{equation}
+        \label{average_positive}
+        \overline y_{i+\half}^L(\alpha) = \dfrac{1}{\alpha} \displaystyle \int_{x_{i+\half}-\alpha}^{x_{i+\half}} y(x) dx = y_i^R - \dfrac{\alpha}{2h}\Bigl[ \Delta y_i - \Bigl( 1 - \dfrac{2 \alpha}{3h} \Bigr)y_i^{(6)} \Bigr],
+    \end{equation}
+    \noindent а на отрезке $ [x_{i+\half}, x_{i+\half}+\alpha], (\alpha > 0)$:
+    \begin{equation}
+        \label{average_negative}
+        \overline y_{i+\half}^R = \dfrac{1}{\alpha} \displaystyle \int_{x_{i+\half}}^{x_{i+\half}+\alpha} y(x) dx = y_{i+1}^L  + \dfrac{\alpha}{2h} \Bigl[\Delta y_{i+1} + \Bigl( 1 - \dfrac{2\alpha}{3h} \Bigr) y_{i+1}^{(6)} \Bigr].
+    \end{equation}
 
     \subsection{Кусочно-параболический метод на локальном шаблоне. PPML}
 
-    Интерполяционная процедура четвертого порядка, применяемая для переопределения граничных узлов, сглаживает разрывные решения $y(x)$. Чтобы обойти данное ограничение, можно определять $ y_i^L $ и $ y_i^R $ с помощью переноса значения на параболе с предыдущего шага по времени вдоль характеристики $ \frac{dx}{dt} = a $. Причем переопределять нужно лишь одну из границ. Для ясности впредь будем рассматривать $y_i^R = y_{i+\half}$.
+    Интерполяционная процедура четвертого порядка, применяемая для переопределения граничных узлов, сглаживает разрывные решения $y(x)$. Чтобы обойти данное ограничение, можно определять $ y_i^L $ и $ y_i^R $ с помощью переноса значения на параболе с предыдущего шага по времени вдоль характеристики $ \frac{dx}{dt} = a $. Причем переопределять нужно лишь одну из границ. Для ясности  будем рассматривать $y_i^R = y_{i+\half}$. Для того, чтобы вычислить ее на следующем временном слое $ t_0 + \tau $, необходимо двигаться от точки $ x_{i+\half} $ со значением $ y_{i+\half} $ вдоль характеристика до предыдущего момента времени $ t_0 $:
+    \begin{enumerate}
+        \item $ a > 0 $, следовательно
+        \begin{equation}
+            \label{ppml_boundary}
+            \begin{split}
+                &y_{i+\half}(t_0 + \tau) = y_i^R(t_0 + \tau) = y_i^L(t_0) + \xi(\Delta y_i(t_0) + y_i^{(6)}(t_0)(1-\xi)), \\[0.7em]
+                &\xi = \dfrac{x - x_{i-\half}}{h} = 1 -  \dfrac{a \tau}{h};
+            \end{split}
+        \end{equation}
+
+        \item $ a < 0 $, следовательно
+        \[
+            \begin{split}
+                &y_{i+\half}(t_0 + \tau) = y_i^R(t_0 + \tau) = y_i^R(t_0) + \xi(\Delta y_{i+1}(t_0) + y_{i+1}^{(6)}(t_0)(1-\xi)), \\[0.7em]
+                &\xi = \dfrac{x - x_{i-\half}}{h} = 1 -  \dfrac{a \tau}{h}.
+            \end{split}  
+        \]
+    \end{enumerate}
+
+    Алгоритм \eqref{ppml_boundary} реализован на локальном шаблоне, то есть длф получения граничных точкек при переходе на следующий временной слой не нужно использовать информацию с соседних ячеек. Нахождение среднего значения на отрезке \eqref{average_positive}, \eqref{average_negative} и смещение экстремума \eqref{local_sup}, \eqref{boundary_sup} производятся аналогично.
+
+    \section{ Одномерное уравнение переноса }
+
+    \subsection{ Особенности реализации } 
+
+    \begin{equation}
+        \label{convection-diffusion}
+      \dfrac{\partial q}{\partial t} + a \dfrac{q}{x} = 0.  
+    \end{equation}
+
+    При возникновении разрыва на границе двух смежных ячеек в точке $ x_{i+\half} $ возникает некоторое усредненное состояние $ y^\star(x_{i+\half}, t) $. Одномерное уравнение переноса имеет всего одну характеристику, поэтому его решение в момент времени $ t = t_0 + \tau $ будет определяться:
+    \begin{enumerate}
+        \item При $ a > 0 $ усреднением по пространствунному интервалу $ [x_{i+\half}-a \tau, x_{i+\half}] $ со значением $ y^\star(x_{i+\half}, t_0 + \tau) = \overline y_{i+\half}^L(a \tau) $;
+        
+        \item При $ a < 0 $ -- по интервалу $ [x_{i+\half} \tau, x_{i+\half}+a \tau] $ со значением $ y^\star(x_{i+\half}, t_0 + \tau) = \overline y_{i+\half}^R(-a \tau) $.
+    \end{enumerate}
+
+    Поток на границе смежных ячеек в задаче Римана определяется по формуле:
+    \begin{equation}
+        \label{boundary_flow}
+        \begin{split}
+            &F_{i+\half} = \dfrac{1}{\tau} \displaystyle \int_{t_0}^{t_0 + \tau} F(y^\star(x_{i+\half}, t))dt = a^+ y_{i+\half}^L + a^- y_{i+\half}^R, \\[0.5em]
+            &a^+ = \max(0, a), \quad a^- = \min(a, 0).
+        \end{split}
+    \end{equation}
+
+    \subsection{Примеры}
 
     \section-{Заключение}
 
