@@ -10,8 +10,20 @@ import Foundation
 public class Algorithm {
     public let time: Grid
     
+    public var data: Data? {
+        return nil
+    }
+    
     public required init(tau: Double = 1.0, deadline: Double) {
         self.time = Grid(start: 0, end: deadline, step: tau)
+    }
+    
+    public func save(file name: String) {
+        let manager = FileManager.default
+        let folder = manager.homeDirectoryForCurrentUser.appendingPathComponent("Desktop", isDirectory: true).appendingPathComponent("CourseWorks", isDirectory: true).appendingPathComponent("Gas Dynamics", isDirectory: true).appendingPathComponent("Code", isDirectory: true).appendingPathComponent("data", isDirectory: true)
+        let file = folder.appendingPathComponent(name).appendingPathExtension("json")
+        guard let _ = try? manager.createDirectory(at: folder, withIntermediateDirectories: true) else { return }
+        manager.createFile(atPath: file.path, contents: data)
     }
 }
 
@@ -22,7 +34,6 @@ public class Algorithm1D: Algorithm {
     public let profile: Profile
     public let segments: [Boundary]
     
-    // Time: Mesh
     public private(set) var solution: [Double: Mesh] = [:]
     
     public let a  : Double
@@ -35,6 +46,17 @@ public class Algorithm1D: Algorithm {
     
     public var gamma: Double {
         return a*time.step/space.step
+    }
+    
+    public override var data: Data? {
+        var json: [String: Any] = [:]
+        solution.sorted(by: { $0.key < $1.key }).forEach { key, value in
+            let mesh = value.sorted(by: { $0.key.middle < $1.key.middle }).reduce(into: [String: String]()) {
+                $0[String($1.key.middle)] = String($1.value.middle)
+            }
+            json[String(key)] = mesh
+        }
+        return try? JSONSerialization.data(withJSONObject: json, options: .sortedKeys)
     }
     
     public init(
@@ -107,6 +129,7 @@ public class Algorithm1D: Algorithm {
             solution[t] = mesh
             previousT = t
         }
+        save(file: "advection")
     }
 }
 
