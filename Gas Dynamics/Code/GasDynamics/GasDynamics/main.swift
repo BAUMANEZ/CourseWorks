@@ -7,4 +7,4 @@
 
 import Foundation
 
-let a = Algorithm1D(profile: .rightTriangle)
+let _ = PPM1D(profile: .tooth)

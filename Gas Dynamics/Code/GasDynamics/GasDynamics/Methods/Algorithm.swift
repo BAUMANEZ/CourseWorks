@@ -16,7 +16,10 @@ public class Algorithm {
     
     public required init(tau: Double = 1.0, deadline: Double) {
         self.time = Grid(start: 0, end: deadline, step: tau)
+        solve()
     }
+    
+    public func solve() {}
     
     public func save(file name: String) {
         let manager = FileManager.default
@@ -34,7 +37,7 @@ public class Algorithm1D: Algorithm {
     public let profile: Profile
     public let segments: [Boundary]
     
-    public private(set) var solution: [Double: Mesh] = [:]
+    public var solution: [Double: Mesh] = [:]
     
     public let a  : Double
     public let l1 : Double
@@ -52,7 +55,13 @@ public class Algorithm1D: Algorithm {
         var json: [String: Any] = [:]
         solution.sorted(by: { $0.key < $1.key }).forEach { key, value in
             let mesh = value.sorted(by: { $0.key.middle < $1.key.middle }).reduce(into: [String: String]()) {
+                if let xM = $1.key.left, let yM = $1.value.left {
+                    $0[String(xM)] = String(yM)
+                }
                 $0[String($1.key.middle)] = String($1.value.middle)
+                if let xP = $1.key.right, let yP = $1.value.right {
+                    $0[String(xP)] = String(yP)
+                }
             }
             json[String(key)] = mesh
         }
@@ -87,7 +96,16 @@ public class Algorithm1D: Algorithm {
             return Boundary(left: left, middle: $0, right: right)
         }
         super.init(tau: h / fabs(a), deadline: deadline)
-        solve()
+    }
+    
+    public func segment(for index: Int) -> Boundary? {
+        guard segments.indices.contains(index) else { return nil }
+        return segments[index]
+    }
+    
+    public func value(for segment: Boundary?, in mesh: Mesh) -> Boundary? {
+        guard let segment = segment else { return nil }
+        return mesh[segment]
     }
     
     public required init(tau: Double = 1.0, deadline: Double) {
@@ -103,8 +121,8 @@ public class Algorithm1D: Algorithm {
         self.segments = []
         super.init(tau: tau, deadline: deadline)
     }
-    
-    private func solve() {
+
+    public override func solve() {
         guard time.steps > 1,
               let t0 = time.nodes.first,
               segments.count > 1,
@@ -122,9 +140,9 @@ public class Algorithm1D: Algorithm {
             for (index, segment) in segments[1...].enumerated() {
                 guard segments.indices.contains(index-1),
                       let y = prevMesh[segment],
-                      let yMinus = prevMesh[segments[index-1]]
+                      let yM = prevMesh[segments[index-1]]
                 else { continue }
-                mesh[segment] = Boundary(middle: (1-gamma)*y.middle + gamma*yMinus.middle)
+                mesh[segment] = Boundary(middle: (1-gamma)*y.middle + gamma*yM.middle)
             }
             solution[t] = mesh
             previousT = t
@@ -134,7 +152,7 @@ public class Algorithm1D: Algorithm {
 }
 
 extension Algorithm {
-    public struct Grid: Equatable {
+    public class Grid: Equatable {
         //MARK: Stepper
         /// - parameter:  order of node (Int)
         /// - result: value of node (Double)
@@ -148,13 +166,18 @@ extension Algorithm {
             return (end-start)/Double(steps+1)
         }
         
+        private var _nodes: [Double]?
         public var nodes: [Double] {
-            var values: [Double] = []
-            values.reserveCapacity(steps)
-            for x in stride(from: start, through: end, by: step) {
-                values.append(x)
+            guard let cached = _nodes else {
+                var values: [Double] = []
+                values.reserveCapacity(steps)
+                for x in stride(from: start, through: end, by: step) {
+                    values.append(x)
+                }
+                _nodes = values
+                return values
             }
-            return values
+            return cached
         }
         
         public init(start: Double, end: Double, steps: Int) {
@@ -174,19 +197,23 @@ extension Algorithm {
             guard node >= start && node <= end else { return nil }
             return node
         }
+        
+        public static func == (lhs: Algorithm.Grid, rhs: Algorithm.Grid) -> Bool {
+            return lhs.start == rhs.start && lhs.end == rhs.end && lhs.steps == rhs.steps
+        }
     }
 }
 
 extension Algorithm {
     public struct Boundary: Hashable {
-        public var left  : Double
+        public var left  : Double?
         public var middle: Double
-        public var right : Double
-        
+        public var right : Double?
+
         public init(left: Double? = nil, middle: Double, right: Double? = nil) {
-            self.left = left ?? middle
+            self.left = left
             self.middle = middle
-            self.right = right ?? middle
+            self.right = right
         }
     }
 }
@@ -229,5 +256,23 @@ extension Algorithm1D {
                 }
             }
         }
+    }
+}
+
+extension Algorithm1D {
+    public func delta(for segment: Boundary, in mesh: Mesh) -> Double? {
+        guard let values = mesh[segment],
+              let left = values.left,
+              let right = values.right
+        else { return nil }
+        return right-left
+    }
+    
+    public func sixth(for segment: Boundary, in mesh: Mesh) -> Double? {
+        guard let values = mesh[segment],
+              let left = values.left,
+              let right = values.right
+        else { return nil }
+        return 6*(values.middle-0.5*(left+right))
     }
 }
