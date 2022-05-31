@@ -7,4 +7,5 @@
 
 import Foundation
 
-let _ = PPM1D(profile: .tooth)
+let ppm = PPM1D(profile: .tooth)
+print(ppm.f(x: 18, t: 2))

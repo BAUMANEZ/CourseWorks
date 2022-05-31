@@ -196,6 +196,7 @@ extension Algorithm {
 
 extension Algorithm1D {
     public struct Cell: Hashable {
+        public let id = UUID()
         public var left  : Pair?
         public var middle: Pair
         public var right : Pair?
@@ -207,36 +208,31 @@ extension Algorithm1D {
         }
         
         public static func == (lhs: Algorithm1D.Cell, rhs: Algorithm1D.Cell) -> Bool {
-            let left = lhs.left?.x == rhs.left?.x && lhs.left?.y == rhs.left?.y
-            let middle = lhs.middle.x == rhs.middle.x && lhs.middle.y == rhs.middle.y
-            let right = lhs.right?.x == rhs.right?.x && lhs.right?.y == rhs.right?.y
-            return left && middle && right
+            return lhs.id == rhs.id
         }
         
         public func hash(into hasher: inout Hasher) {
-            hasher.combine(left?.x)
-            hasher.combine(left?.y)
-            hasher.combine(middle.x)
-            hasher.combine(middle.y)
-            hasher.combine(right?.x)
-            hasher.combine(right?.y)
+            hasher.combine(id)
         }
         
         public struct Pair {
-            var x: Double
+            let x: Double
             var y: Double?
         }
     }
 }
 
 extension Algorithm1D {
+    public func xi(for x: Double, in cell: Cell) -> Double? {
+        guard let xL = cell.left?.x else { return nil }
+        return (x-xL)/space.step
+    }
     public func delta(for cell: Cell) -> Double? {
         guard let left = cell.left?.y,
               let right = cell.right?.y
         else { return nil }
         return right-left
     }
-    
     public func sixth(for cell: Cell) -> Double? {
         guard let left = cell.left?.y,
               let middle = cell.middle.y,
@@ -244,6 +240,7 @@ extension Algorithm1D {
         else { return nil }
         return 6*(middle-0.5*(left+right))
     }
+    
 }
 
 
