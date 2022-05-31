@@ -31,11 +31,10 @@ public class Algorithm {
 }
 
 public class Algorithm1D: Algorithm {
-    public typealias Mesh = [Boundary: Boundary]
+    public typealias Mesh = Array<Cell>
     
     public let space  : Grid
     public let profile: Profile
-    public let segments: [Boundary]
     
     public var solution: [Double: Mesh] = [:]
     
@@ -54,13 +53,15 @@ public class Algorithm1D: Algorithm {
     public override var data: Data? {
         var json: [String: Any] = [:]
         solution.sorted(by: { $0.key < $1.key }).forEach { key, value in
-            let mesh = value.sorted(by: { $0.key.middle < $1.key.middle }).reduce(into: [String: String]()) {
-                if let xM = $1.key.left, let yM = $1.value.left {
-                    $0[String(xM)] = String(yM)
+            let mesh = value.reduce(into: [String: String]()) {
+                if let left = $1.left, let yL = left.y  {
+                    $0[String(left.x)] = String(yL)
                 }
-                $0[String($1.key.middle)] = String($1.value.middle)
-                if let xP = $1.key.right, let yP = $1.value.right {
-                    $0[String(xP)] = String(yP)
+                if let y = $1.middle.y {
+                    $0[String($1.middle.x)] = String(y)
+                }
+                if let right = $1.right, let yR = right.y  {
+                    $0[String(right.x)] = String(yR)
                 }
             }
             json[String(key)] = mesh
@@ -90,22 +91,7 @@ public class Algorithm1D: Algorithm {
         self.L   = L
         let nodes = Grid(start: l1, end: L, step: h)
         self.space = nodes
-        self.segments = nodes.nodes.map {
-            let left = $0-0.5 >= l1 ? $0-0.5 : nil
-            let right = $0+0.5 <= L ? $0+0.5 : nil
-            return Boundary(left: left, middle: $0, right: right)
-        }
         super.init(tau: h / fabs(a), deadline: deadline)
-    }
-    
-    public func segment(for index: Int) -> Boundary? {
-        guard segments.indices.contains(index) else { return nil }
-        return segments[index]
-    }
-    
-    public func value(for segment: Boundary?, in mesh: Mesh) -> Boundary? {
-        guard let segment = segment else { return nil }
-        return mesh[segment]
     }
     
     public required init(tau: Double = 1.0, deadline: Double) {
@@ -118,36 +104,40 @@ public class Algorithm1D: Algorithm {
         self.l2  = 0.0
         self.L   = 0.0
         self.space = Grid(start: 0.0, end: 0.0, step: 0.0)
-        self.segments = []
         super.init(tau: tau, deadline: deadline)
     }
 
     public override func solve() {
         guard time.steps > 1,
-              let t0 = time.nodes.first,
-              segments.count > 1,
-              let x0 = segments.first
+              let t0 = time.nodes.first
         else { return }
-        solution[t0] = segments.reduce(into: Mesh()) {
-            let value = profile.value(for: $1.middle, with: self)
-            $0[$1] = Boundary(middle: value)
-        }
+        solution[t0] = space.nodes.reduce(into: Mesh()) { $0.append(self.cell(for: $1)) }
         let gamma = self.gamma
         var previousT = t0
         for t in time.nodes[1...] {
-            guard let prevMesh = solution[previousT] else { continue }
-            var mesh: Mesh = [x0: Boundary(middle: .zero)]
-            for (index, segment) in segments[1...].enumerated() {
-                guard segments.indices.contains(index-1),
-                      let y = prevMesh[segment],
-                      let yM = prevMesh[segments[index-1]]
+            guard
+                let prevMesh = solution[previousT],
+                let x0 = prevMesh.first?.middle.x
+            else { continue }
+            var mesh: Mesh = [self.cell(for: x0, exlpicit: .zero)]
+            for (index, cell) in prevMesh[1...].enumerated() {
+                guard prevMesh.indices.contains(index-1),
+                      let y = cell.middle.y,
+                      let yM = prevMesh[index-1].middle.y
                 else { continue }
-                mesh[segment] = Boundary(middle: (1-gamma)*y.middle + gamma*yM.middle)
+                mesh.append(self.cell(for: cell.middle.x, exlpicit: (1-gamma)*y + gamma*yM))
             }
             solution[t] = mesh
             previousT = t
         }
         save(file: "advection")
+    }
+    
+    private func cell(for x: Double, exlpicit y: Double? = nil) -> Cell {
+        let left = x-0.5 >= l1 ? Cell.Pair(x: x-0.5, y: nil) : nil
+        let middle = Cell.Pair(x: x, y: y ?? profile.value(for: x, with: self))
+        let right = x+0.5 <= L ? Cell.Pair(x: x+0.5, y: nil) : nil
+        return Cell(left: left, middle: middle, right: right)
     }
 }
 
@@ -204,19 +194,58 @@ extension Algorithm {
     }
 }
 
-extension Algorithm {
-    public struct Boundary: Hashable {
-        public var left  : Double?
-        public var middle: Double
-        public var right : Double?
-
-        public init(left: Double? = nil, middle: Double, right: Double? = nil) {
+extension Algorithm1D {
+    public struct Cell: Hashable {
+        public var left  : Pair?
+        public var middle: Pair
+        public var right : Pair?
+        
+        public init(left: Pair? = nil, middle: Pair, right: Pair?) {
             self.left = left
             self.middle = middle
             self.right = right
         }
+        
+        public static func == (lhs: Algorithm1D.Cell, rhs: Algorithm1D.Cell) -> Bool {
+            let left = lhs.left?.x == rhs.left?.x && lhs.left?.y == rhs.left?.y
+            let middle = lhs.middle.x == rhs.middle.x && lhs.middle.y == rhs.middle.y
+            let right = lhs.right?.x == rhs.right?.x && lhs.right?.y == rhs.right?.y
+            return left && middle && right
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(left?.x)
+            hasher.combine(left?.y)
+            hasher.combine(middle.x)
+            hasher.combine(middle.y)
+            hasher.combine(right?.x)
+            hasher.combine(right?.y)
+        }
+        
+        public struct Pair {
+            var x: Double
+            var y: Double?
+        }
     }
 }
+
+extension Algorithm1D {
+    public func delta(for cell: Cell) -> Double? {
+        guard let left = cell.left?.y,
+              let right = cell.right?.y
+        else { return nil }
+        return right-left
+    }
+    
+    public func sixth(for cell: Cell) -> Double? {
+        guard let left = cell.left?.y,
+              let middle = cell.middle.y,
+              let right = cell.right?.y
+        else { return nil }
+        return 6*(middle-0.5*(left+right))
+    }
+}
+
 
 extension Algorithm1D {
     public enum Profile {
@@ -256,23 +285,5 @@ extension Algorithm1D {
                 }
             }
         }
-    }
-}
-
-extension Algorithm1D {
-    public func delta(for segment: Boundary, in mesh: Mesh) -> Double? {
-        guard let values = mesh[segment],
-              let left = values.left,
-              let right = values.right
-        else { return nil }
-        return right-left
-    }
-    
-    public func sixth(for segment: Boundary, in mesh: Mesh) -> Double? {
-        guard let values = mesh[segment],
-              let left = values.left,
-              let right = values.right
-        else { return nil }
-        return 6*(values.middle-0.5*(left+right))
     }
 }
