@@ -7,10 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		215A0FB228463B25002C8DED /* Advection1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB128463B25002C8DED /* Advection1D.swift */; };
+		215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB528463CE5002C8DED /* Algorithm.swift */; };
+		215A0FB8284644ED002C8DED /* Interpolation1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB7284644ED002C8DED /* Interpolation1D.swift */; };
+		215A0FBA2846458B002C8DED /* Bruggers1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB92846458B002C8DED /* Bruggers1D.swift */; };
 		21ED477828441439001D61FA /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED477728441439001D61FA /* main.swift */; };
-		21ED4780284414B3001D61FA /* Algorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED477F284414B3001D61FA /* Algorithm.swift */; };
-		21ED4782284414B9001D61FA /* PPM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED4781284414B9001D61FA /* PPM.swift */; };
-		21ED4784284414BE001D61FA /* PPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED4783284414BE001D61FA /* PPML.swift */; };
+		21ED4780284414B3001D61FA /* Algorithm1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED477F284414B3001D61FA /* Algorithm1D.swift */; };
+		21ED4782284414B9001D61FA /* PPM1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED4781284414B9001D61FA /* PPM1D.swift */; };
+		21ED4784284414BE001D61FA /* PPML1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED4783284414BE001D61FA /* PPML1D.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,11 +30,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		215A0FB128463B25002C8DED /* Advection1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advection1D.swift; sourceTree = "<group>"; };
+		215A0FB528463CE5002C8DED /* Algorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm.swift; sourceTree = "<group>"; };
+		215A0FB7284644ED002C8DED /* Interpolation1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpolation1D.swift; sourceTree = "<group>"; };
+		215A0FB92846458B002C8DED /* Bruggers1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bruggers1D.swift; sourceTree = "<group>"; };
 		21ED477428441439001D61FA /* GasDynamics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GasDynamics; sourceTree = BUILT_PRODUCTS_DIR; };
 		21ED477728441439001D61FA /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		21ED477F284414B3001D61FA /* Algorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm.swift; sourceTree = "<group>"; };
-		21ED4781284414B9001D61FA /* PPM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPM.swift; sourceTree = "<group>"; };
-		21ED4783284414BE001D61FA /* PPML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPML.swift; sourceTree = "<group>"; };
+		21ED477F284414B3001D61FA /* Algorithm1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm1D.swift; sourceTree = "<group>"; };
+		21ED4781284414B9001D61FA /* PPM1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPM1D.swift; sourceTree = "<group>"; };
+		21ED4783284414BE001D61FA /* PPML1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPML1D.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +52,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		215A0FB328463C5F002C8DED /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				21ED477F284414B3001D61FA /* Algorithm1D.swift */,
+				215A0FB128463B25002C8DED /* Advection1D.swift */,
+				215A0FB92846458B002C8DED /* Bruggers1D.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		215A0FB428463C6B002C8DED /* Interpolation */ = {
+			isa = PBXGroup;
+			children = (
+				215A0FB7284644ED002C8DED /* Interpolation1D.swift */,
+				21ED4781284414B9001D61FA /* PPM1D.swift */,
+				21ED4783284414BE001D61FA /* PPML1D.swift */,
+			);
+			path = Interpolation;
+			sourceTree = "<group>";
+		};
+		21B1F371284624C900C30E7C /* 1D */ = {
+			isa = PBXGroup;
+			children = (
+				215A0FB328463C5F002C8DED /* Base */,
+				215A0FB428463C6B002C8DED /* Interpolation */,
+			);
+			path = 1D;
+			sourceTree = "<group>";
+		};
 		21ED476B28441439001D61FA = {
 			isa = PBXGroup;
 			children = (
@@ -63,8 +100,8 @@
 		21ED477628441439001D61FA /* GasDynamics */ = {
 			isa = PBXGroup;
 			children = (
-				21ED477E284414A9001D61FA /* Methods */,
 				21ED477728441439001D61FA /* main.swift */,
+				21ED477E284414A9001D61FA /* Methods */,
 			);
 			path = GasDynamics;
 			sourceTree = "<group>";
@@ -72,9 +109,8 @@
 		21ED477E284414A9001D61FA /* Methods */ = {
 			isa = PBXGroup;
 			children = (
-				21ED477F284414B3001D61FA /* Algorithm.swift */,
-				21ED4781284414B9001D61FA /* PPM.swift */,
-				21ED4783284414BE001D61FA /* PPML.swift */,
+				215A0FB528463CE5002C8DED /* Algorithm.swift */,
+				21B1F371284624C900C30E7C /* 1D */,
 			);
 			path = Methods;
 			sourceTree = "<group>";
@@ -137,10 +173,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */,
 				21ED477828441439001D61FA /* main.swift in Sources */,
-				21ED4782284414B9001D61FA /* PPM.swift in Sources */,
-				21ED4784284414BE001D61FA /* PPML.swift in Sources */,
-				21ED4780284414B3001D61FA /* Algorithm.swift in Sources */,
+				215A0FBA2846458B002C8DED /* Bruggers1D.swift in Sources */,
+				215A0FB8284644ED002C8DED /* Interpolation1D.swift in Sources */,
+				21ED4782284414B9001D61FA /* PPM1D.swift in Sources */,
+				21ED4784284414BE001D61FA /* PPML1D.swift in Sources */,
+				21ED4780284414B3001D61FA /* Algorithm1D.swift in Sources */,
+				215A0FB228463B25002C8DED /* Advection1D.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

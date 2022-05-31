@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+public final class PPML1D: Interpolation1D {
+   
+}

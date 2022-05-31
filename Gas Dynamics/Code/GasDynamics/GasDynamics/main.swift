@@ -7,5 +7,5 @@
 
 import Foundation
 
-let ppm = PPM1D(profile: .tooth)
-print(ppm.f(x: 18, t: 2))
+let ppm = PPM1D(initial: Advection1D(profile: .cos))
+print(ppm.f(x: ppm.space.start, t: 0))
