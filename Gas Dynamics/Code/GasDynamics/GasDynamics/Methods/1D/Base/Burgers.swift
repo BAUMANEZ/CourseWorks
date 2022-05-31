@@ -7,6 +7,6 @@
 
 import Foundation
 
-public final class Bruggers1D: Algorithm1D {
+public final class Burgers1D: Algorithm1D {
     
 }

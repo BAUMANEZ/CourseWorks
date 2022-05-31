@@ -10,7 +10,7 @@
 		215A0FB228463B25002C8DED /* Advection1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB128463B25002C8DED /* Advection1D.swift */; };
 		215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB528463CE5002C8DED /* Algorithm.swift */; };
 		215A0FB8284644ED002C8DED /* Interpolation1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB7284644ED002C8DED /* Interpolation1D.swift */; };
-		215A0FBA2846458B002C8DED /* Bruggers1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB92846458B002C8DED /* Bruggers1D.swift */; };
+		215A0FBA2846458B002C8DED /* Burgers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB92846458B002C8DED /* Burgers.swift */; };
 		21ED477828441439001D61FA /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED477728441439001D61FA /* main.swift */; };
 		21ED4780284414B3001D61FA /* Algorithm1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED477F284414B3001D61FA /* Algorithm1D.swift */; };
 		21ED4782284414B9001D61FA /* PPM1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ED4781284414B9001D61FA /* PPM1D.swift */; };
@@ -33,7 +33,7 @@
 		215A0FB128463B25002C8DED /* Advection1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advection1D.swift; sourceTree = "<group>"; };
 		215A0FB528463CE5002C8DED /* Algorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm.swift; sourceTree = "<group>"; };
 		215A0FB7284644ED002C8DED /* Interpolation1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpolation1D.swift; sourceTree = "<group>"; };
-		215A0FB92846458B002C8DED /* Bruggers1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bruggers1D.swift; sourceTree = "<group>"; };
+		215A0FB92846458B002C8DED /* Burgers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Burgers.swift; sourceTree = "<group>"; };
 		21ED477428441439001D61FA /* GasDynamics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GasDynamics; sourceTree = BUILT_PRODUCTS_DIR; };
 		21ED477728441439001D61FA /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		21ED477F284414B3001D61FA /* Algorithm1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm1D.swift; sourceTree = "<group>"; };
@@ -57,7 +57,7 @@
 			children = (
 				21ED477F284414B3001D61FA /* Algorithm1D.swift */,
 				215A0FB128463B25002C8DED /* Advection1D.swift */,
-				215A0FB92846458B002C8DED /* Bruggers1D.swift */,
+				215A0FB92846458B002C8DED /* Burgers.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -175,7 +175,7 @@
 			files = (
 				215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */,
 				21ED477828441439001D61FA /* main.swift in Sources */,
-				215A0FBA2846458B002C8DED /* Bruggers1D.swift in Sources */,
+				215A0FBA2846458B002C8DED /* Burgers.swift in Sources */,
 				215A0FB8284644ED002C8DED /* Interpolation1D.swift in Sources */,
 				21ED4782284414B9001D61FA /* PPM1D.swift in Sources */,
 				21ED4784284414BE001D61FA /* PPML1D.swift in Sources */,

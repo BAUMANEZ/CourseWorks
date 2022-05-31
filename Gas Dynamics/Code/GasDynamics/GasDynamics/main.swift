@@ -7,5 +7,7 @@
 
 import Foundation
 
-let ppm = PPM1D(initial: Advection1D(profile: .cos))
-print(ppm.f(x: ppm.space.start, t: 0))
+let advection = Advection1D(profile: .leftTriangle)
+let ppm = PPM1D(initial: advection)
+let ppml = PPML1D(initial: advection)
+//print(ppm.normC)

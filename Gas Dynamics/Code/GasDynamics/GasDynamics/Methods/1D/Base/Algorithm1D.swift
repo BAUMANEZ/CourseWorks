@@ -45,6 +45,27 @@ public class Algorithm1D: Algorithm {
         return try? JSONSerialization.data(withJSONObject: json, options: .sortedKeys)
     }
     
+    public final var normC: Double {
+        var max = Double.leastNormalMagnitude
+        for t in time.nodes {
+            guard let mesh = solution[t] else { continue }
+            for cell in mesh {
+                let middle = cell.middle.x
+                let a = cell.left?.x ?? middle
+                let b = cell.right?.x ?? middle
+                let N = (b-a)/5
+                for x in stride(from: a, through: b, by: N) {
+                    guard let y = f(x: x, t: t) else { continue }
+                    max = Swift.max(max, fabs(y))
+                }
+            }
+        }
+        return max
+    }
+//    public final var normL1: Double {
+//        
+//    }
+    
     public required init(a: Double, b: Double, h: Double, tau: Double, deadline: Double) {
         self.space = Grid(start: a, end: b, step: h)
         super.init(tau: tau, deadline: deadline)

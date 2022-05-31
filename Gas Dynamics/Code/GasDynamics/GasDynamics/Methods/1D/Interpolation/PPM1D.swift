@@ -9,7 +9,6 @@ import Foundation
 
 public final class PPM1D: Interpolation1D {
     public override func solve() {
-        super.solve()
         for t in time.nodes {
             guard let mesh = solution[t] else { continue }
             var updated: Mesh = []
