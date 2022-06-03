@@ -14,8 +14,9 @@ public class Algorithm {
         return nil
     }
     
-    public required init(tau: Double = 1.0, deadline: Double) {
+    public init(tau: Double = 1.0, deadline: Double) {
         self.time = Grid(start: 0, end: deadline, step: tau)
+        solve()
     }
     
     public func solve() {}

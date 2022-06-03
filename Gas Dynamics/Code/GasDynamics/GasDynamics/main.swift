@@ -7,7 +7,7 @@
 
 import Foundation
 
-let advection = Advection1D(profile: .leftTriangle)
-let ppm = PPM1D(initial: advection)
-let ppml = PPML1D(initial: advection)
-//print(ppm.normC)
+let profile: Advection1D.Profile = .tooth
+let advection = Advection1D(c: 1.0, h: 1.0, profile: profile)
+let ppm = Advection1D.PPM(c: 1.0, h: 1.0, profile: profile)
+let ppml = Advection1D.PPML(c: 1.0, h: 1.0, profile: profile)
