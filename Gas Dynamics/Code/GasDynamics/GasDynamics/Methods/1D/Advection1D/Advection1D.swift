@@ -27,33 +27,28 @@ public class Advection1D: Algorithm1D {
         self.c = c
         self.u = u
         self.u0 = u0
-        super.init(a: a, b: b, h: 1.0, tau: c/h, deadline: T)
+        super.init(a: a, b: b, h: h, tau: c/h, deadline: T)
     }
     
     public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {
-        let u = { x, t in return profile.f(x: x+c*t) }
+        let u = { x, t in return profile.f(x: x-c*t) }
         self.init(a: profile.l1, b: profile.L, T: profile.T, c: c, h: h, u: u, u0: profile.f)
     }
     
+    //MARK: Drift along characteristics
+    public final func drift(for t: Time, in x: Double) -> Double {
+        return u0(x-c*t)
+    }
+    public override func f(x: Double, t: Double) -> Double? {
+        return drift(for: t, in: x)
+    }
+    
     public override func solve() {
-        solutions[time.start] = space.nodes.reduce(into: Mesh()) { mesh, x in
-            mesh[x] = self.u0(x)
-        }
-        if time.steps > 1 {
-            let gamma = gamma
-            for t in time.nodes[1...] {
-                guard let meshP = solutions[t-time.step] else { continue }
-                var mesh = Mesh()
-                for x in space.nodes {
-                    guard let yP = meshP[x], let yPM = meshP[x-space.step] else {
-                        mesh[x] = 0.0
-                        continue
-                    }
-                    mesh[x] = (1-gamma)*yP+gamma*yPM
-                }
-                solutions[t] = mesh
+        let solutions = time.nodes.reduce(into: [Time: Mesh]()) { solutions, t in
+            solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, x in
+                mesh[x] = f(x: x, t: t)
             }
         }
-        save(file: "advection", data: data)
+        save(file: "advection", data: data(for: solutions))
     }
 }

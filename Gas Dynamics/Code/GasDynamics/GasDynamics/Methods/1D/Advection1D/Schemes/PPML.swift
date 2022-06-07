@@ -8,9 +8,6 @@
 import Foundation
 
 extension Advection1D {
-    public final class PPML: Advection1D {
-        public override func solve() {
-            save(file: "advectionPPML", data: data)
-        }
+    public final class PPML: InterpolatedAdvection1D {
     }
 }

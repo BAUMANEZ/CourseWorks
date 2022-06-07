@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		215A0FB228463B25002C8DED /* Advection1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB128463B25002C8DED /* Advection1D.swift */; };
 		215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215A0FB528463CE5002C8DED /* Algorithm.swift */; };
+		216B5DF7284F72F70025025E /* Interpolated1D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216B5DF6284F72F70025025E /* Interpolated1D.swift */; };
+		216B5DF9284F87DC0025025E /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216B5DF8284F87DC0025025E /* Node.swift */; };
 		21C6F86C2848C036005846C7 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C6F86B2848C036005846C7 /* Grid.swift */; };
 		21C6F86F2848C4EB005846C7 /* ArticleProfiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C6F86E2848C4EB005846C7 /* ArticleProfiles.swift */; };
 		21C6F8762848CDF6005846C7 /* PPM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C6F8752848CDF6005846C7 /* PPM.swift */; };
@@ -32,6 +34,8 @@
 /* Begin PBXFileReference section */
 		215A0FB128463B25002C8DED /* Advection1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advection1D.swift; sourceTree = "<group>"; };
 		215A0FB528463CE5002C8DED /* Algorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algorithm.swift; sourceTree = "<group>"; };
+		216B5DF6284F72F70025025E /* Interpolated1D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpolated1D.swift; sourceTree = "<group>"; };
+		216B5DF8284F87DC0025025E /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		21C6F86B2848C036005846C7 /* Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		21C6F86E2848C4EB005846C7 /* ArticleProfiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleProfiles.swift; sourceTree = "<group>"; };
 		21C6F8752848CDF6005846C7 /* PPM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPM.swift; sourceTree = "<group>"; };
@@ -56,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				21ED477F284414B3001D61FA /* Algorithm1D.swift */,
+				216B5DF8284F87DC0025025E /* Node.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -67,6 +72,13 @@
 				21C6F86D2848C4D5005846C7 /* Advection1D */,
 			);
 			path = 1D;
+			sourceTree = "<group>";
+		};
+		21C4EFF4284F9BCF00AC172D /* Collections */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Collections;
 			sourceTree = "<group>";
 		};
 		21C6F86A2848C028005846C7 /* Base */ = {
@@ -91,6 +103,7 @@
 		21C6F8742848CDC6005846C7 /* Schemes */ = {
 			isa = PBXGroup;
 			children = (
+				216B5DF6284F72F70025025E /* Interpolated1D.swift */,
 				21C6F8752848CDF6005846C7 /* PPM.swift */,
 				21C6F8772848CDFB005846C7 /* PPML.swift */,
 			);
@@ -125,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				21ED477728441439001D61FA /* main.swift */,
+				21C4EFF4284F9BCF00AC172D /* Collections */,
 				21ED477E284414A9001D61FA /* Methods */,
 			);
 			path = GasDynamics;
@@ -198,9 +212,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				21C6F86F2848C4EB005846C7 /* ArticleProfiles.swift in Sources */,
+				216B5DF9284F87DC0025025E /* Node.swift in Sources */,
 				21C6F8762848CDF6005846C7 /* PPM.swift in Sources */,
 				215A0FB628463CE5002C8DED /* Algorithm.swift in Sources */,
 				21C6F8782848CDFB005846C7 /* PPML.swift in Sources */,
+				216B5DF7284F72F70025025E /* Interpolated1D.swift in Sources */,
 				21ED477828441439001D61FA /* main.swift in Sources */,
 				21ED4780284414B3001D61FA /* Algorithm1D.swift in Sources */,
 				21C6F86C2848C036005846C7 /* Grid.swift in Sources */,

@@ -22,6 +22,10 @@ extension Algorithm {
             return (end-start)/Double(steps+1)
         }
         
+        public final var halfed: Double {
+            return step/2
+        }
+        
         private var _nodes: [Double]?
         public final var nodes: [Double] {
             guard let cached = _nodes else {
