@@ -42,6 +42,74 @@ public class InterpolatedAdvection1D: Advection1D {
         return result
     }
     
+    public final var normL: Double {
+        return time.nodes[0..<time.nodes.count-1].reduce(into: Double()) { global, t in
+            guard detailed[t] != nil else { return () }
+            global += space.nodes.reduce(into: Double()) { local, node in
+                let tP = t+time.step
+                let xL = Node(value: node-space.halfed, side: .right)
+                let x  = Node(value: node, side: .middle)
+                let xR = Node(value: node+space.halfed, side: .left)
+                guard let y = detailed[t]?[x],
+                      let yL = detailed[t]?[xL],
+                      let yR = detailed[t]?[xR],
+                      let yP = detailed[tP]?[x],
+                      let yPL = detailed[tP]?[xL],
+                      let yPR = detailed[tP]?[xR]
+                else { return }
+                let delta = yR-yL
+                let deltaP = yPR-yPL
+                let sixth = 6.0*(y-0.5*(yR+yL))
+                let sixthP = 6.0*(yP-0.5*(yPR+yPL))
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                    let xi = (j-xL.value)/space.step
+                    let f = Swift.abs(u(j, t)-(yL+xi*(delta+sixth*(1.0-xi))))
+                    let fP = Swift.abs(u(j, tP)-(yPL+xi*(deltaP+sixthP*(1.0-xi))))
+                    local += space.step*(fP-f)
+                }
+            }
+        }
+    }
+    public final var normL2: Double {
+        return sqrt(time.nodes[0..<time.nodes.count-1].reduce(into: Double()) { global, t in
+            guard detailed[t] != nil else { return () }
+            global += space.nodes.reduce(into: Double()) { local, node in
+                let tP = t+time.step
+                let xL = Node(value: node-space.halfed, side: .right)
+                let x  = Node(value: node, side: .middle)
+                let xR = Node(value: node+space.halfed, side: .left)
+                guard let y = detailed[t]?[x],
+                      let yL = detailed[t]?[xL],
+                      let yR = detailed[t]?[xR],
+                      let yP = detailed[tP]?[x],
+                      let yPL = detailed[tP]?[xL],
+                      let yPR = detailed[tP]?[xR]
+                else { return }
+                let delta = yR-yL
+                let deltaP = yPR-yPL
+                let sixth = 6.0*(y-0.5*(yR+yL))
+                let sixthP = 6.0*(yP-0.5*(yPR+yPL))
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                    let xi = (j-xL.value)/space.step
+                    let f = Swift.abs(u(j, t)-(yL+xi*(delta+sixth*(1.0-xi))))
+                    let fP = Swift.abs(u(j, tP)-(yPL+xi*(deltaP+sixthP*(1.0-xi))))
+                    local += pow(space.step*(fP-f), 2)
+                }
+            }
+        })
+    }
+    public final var normW2: Double {
+        return sqrt(time.nodes[0 ..< time.nodes.count-1].reduce(into: Double()) { global, t in
+            global += space.nodes.reduce(into: Double()) { local, node in
+                let x = Node(value: node, side: .middle)
+                guard let y = detailed[t]?[x],
+                      let yP = detailed[t+time.step]?[x]
+                else { return () }
+                local += pow(space.step*(abs(yP-u(node, t)-abs(y-u(node, t+time.step)))), 2)
+            }
+        })
+    }
+    
     private final func Nf(in x: Double, xL: Double, yL: Double, y: Double, xR: Double, yR: Double) -> Double {
         let xi = (x-xL)/space.step
         let delta = yR-yL
