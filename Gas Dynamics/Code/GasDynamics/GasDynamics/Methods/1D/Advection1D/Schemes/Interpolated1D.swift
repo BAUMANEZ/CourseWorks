@@ -16,7 +16,30 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public var substep: Double {
-        return 5.0
+        return 20.0
+    }
+    
+    public final var normC: Double {
+        var result = -Double.greatestFiniteMagnitude
+        time.nodes[1...].forEach { t in
+            guard detailed[t] != nil else { return }
+            space.nodes.forEach { node in
+                let xL = Node(value: node-space.halfed, side: .right)
+                let xM = Node(value: node, side: .middle)
+                let xR = Node(value: node+space.halfed, side: .left)
+                guard let y = detailed[t]?[xM],
+                      let yL = detailed[t]?[xL],
+                      let yR = detailed[t]?[xR]
+                else { return }
+                let delta = yR-yL
+                let sixth = 6.0*(y-0.5*(yR+yL))
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                    let xi = (j-xL.value)/space.step
+                    result = Swift.max(result, (u(j, t)-(yL+xi*(delta+sixth*(1.0-xi)))).magnitude)
+                }
+            }
+        }
+        return result
     }
     
     private final func Nf(in x: Double, xL: Double, yL: Double, y: Double, xR: Double, yR: Double) -> Double {
@@ -49,16 +72,35 @@ public class InterpolatedAdvection1D: Advection1D {
         guard time.steps > 1 else { return }
         time.nodes[1...].forEach{ solve(for: $0) }
         adjust()
+        
         let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
-            var mesh: Mesh = [:]
-            for x in stride(from: space.start+2.0*space.step, through: space.end, by: space.step/substep) {
-                mesh[x] = f(x: x, t: t)
+            guard detailed[t] != nil else { return () }
+            solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, node in
+                let xL = Node(value: node-space.halfed, side: .right)
+                let xM = Node(value: node, side: .middle)
+                let xR = Node(value: node+space.halfed, side: .left)
+                guard let y = detailed[t]?[xM],
+                      let yL = detailed[t]?[xL],
+                      let yR = detailed[t]?[xR]
+                else { return }
+                let delta = yR-yL
+                let sixth = 6.0*(y-0.5*(yR+yL))
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (j-xL.value)/space.step
+                    mesh[j] = yL+xi*(delta+sixth*(1.0-xi))
+                }
             }
-            solutions[t] = mesh
         }
         if let identifier = identifier {
             save(file: identifier, data: data(for: solutions))
         }
+//        let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
+//            var mesh: Mesh = [:]
+//            for x in stride(from: space.start+2.0*space.step, through: space.end, by: space.step/substep) {
+//                mesh[x] = f(x: x, t: t)
+//            }
+//            solutions[t] = mesh
+//        }
     }
     
     public func solve(for t: Time) {

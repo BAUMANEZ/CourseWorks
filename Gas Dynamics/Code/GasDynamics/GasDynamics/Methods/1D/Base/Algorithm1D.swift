@@ -32,7 +32,9 @@ public class Algorithm1D: Algorithm {
                 let y = pair.value
                 mesh[String(x)] = String(y)
             }
-            json[String(solution.key)] = mesh
+            if !mesh.isEmpty {
+                json[String(solution.key)] = mesh
+            }
         }
         return try? JSONSerialization.data(withJSONObject: json, options: .sortedKeys)
     }

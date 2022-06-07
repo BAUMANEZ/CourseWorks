@@ -15,24 +15,23 @@ extension Advection1D {
         
         public override func solve(for t: Time) {
             super.solve(for: t)
-            guard let mesh = detailed[t] else { return }
-            detailed[t] = space.nodes.reduce(into: DetailedMesh()) { detailed, node in
-                let x = Node(value: node, side: .middle)
-                guard let y = mesh[x] else { return () }
-                detailed[x] = y
-                let nodeL = Node(value: node-space.halfed, side: .left)
-                if let yL = detailed[nodeL] {
-                    detailed[Node(value: nodeL.value, side: .right)] = yL
+            guard detailed[t] != nil else { return }
+            space.nodes.forEach { node in
+                let x  = Node(value: node, side: .middle)
+                let xL = Node(value: node-space.halfed, side: .right)
+                let xR = Node(value: node+space.halfed, side: .left)
+                if let yL = detailed[t]?[Node(value: xL.value, side: .left)] {
+                    detailed[t]?[xL] = yL
                 }
                 let xM = Node(value: node-space.step, side: .middle)
                 let xP = Node(value: node+space.step, side: .middle)
                 let xPP = Node(value: node+2.0*space.step, side: .middle)
-                guard let yM = mesh[xM],
-                      let yP = mesh[xP],
-                      let yPP = mesh[xPP]
+                guard let y   = detailed[t]?[x],
+                      let yM  = detailed[t]?[xM],
+                      let yP  = detailed[t]?[xP],
+                      let yPP = detailed[t]?[xPP]
                 else { return () }
-                let xR = Node(value: node+space.halfed, side: .left)
-                detailed[xR] = 0.5*(y+yP)-1/6*(deltaM(yL: y, y: yP, yR: yPP)-deltaM(yL: yM, y: y, yR: yP))
+                detailed[t]?[xR] = 0.5*(y+yP)-(1.0/6.0)*(deltaM(yL: y, y: yP, yR: yPP)-deltaM(yL: yM, y: y, yR: yP))
             }
         }
         

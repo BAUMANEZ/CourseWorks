@@ -13,7 +13,7 @@ public class Advection1D: Algorithm1D {
     public let u0: (Double) -> Double
     
     public var gamma: Double {
-        return space.step*c/time.step
+        return time.step*c/space.step
     }
     
     public init(a : Double,
@@ -27,7 +27,7 @@ public class Advection1D: Algorithm1D {
         self.c = c
         self.u = u
         self.u0 = u0
-        super.init(a: a, b: b, h: h, tau: c/h, deadline: T)
+        super.init(a: a, b: b, h: h, tau: h/c, deadline: T)
     }
     
     public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {
