@@ -21,37 +21,31 @@ extension Advection1D {
                 let x  = Node(value: node, side: .middle)
                 let xL = Node(value: node-space.halfed, side: .right)
                 let xR = Node(value: node+space.halfed, side: .left)
-                var yL: Double?
-                if let _yL = detailed[t]?[Node(value: xL.value, side: .left)] {
-                    yL = _yL
-                    detailed[t]?[xL] = _yL
+                let xP  = Node(value: node-space.step, side: .middle)
+                let xLP = Node(value: node-space.step-space.halfed, side: .right)
+                let xRP = Node(value: node-space.step+space.halfed, side: .left)
+                guard let yL = Nf(t: tP, x: xL.value-c*time.step, xL: xLP, xM: xP, xR: xRP),
+                      let yR = Nf(t: tP, x: xR.value-c*time.step, xL: xL, xM: x, xR: xR)
+                else { return  }
+                let z = u(xL.value, t)
+                let v = u(xR.value, t)
+                let n = u((xL.value+xR.value)/2, t)
+                let y = 1.0/6.0*(z+4.0*n+v)
+                detailed[t]?[x] = y
+//                detailed[t]?[xL] = yL
+//                detailed[t]?[xR] = yR
+//                return
+                guard (yR-y)*(y-yL) > 0 else {
+                    detailed[t]?[xL] = y
+                    detailed[t]?[xR] = y
+                    return
                 }
-                guard let yLP = detailed[tP]?[xL],
-                      let yP  = detailed[tP]?[x],
-                      let yRP = detailed[tP]?[xR]
-                else { return () }
-                let xi = 1.0-gamma
-                let delta = yRP-yLP
-                let sixth = 6.0*(yP-0.5*(yLP+yRP))
-                let yR = yLP+xi*(delta+sixth*(1.0-xi))
-                detailed[t]?[xR] = yR
-                if let yL = yL, let y = detailed[t]?[x] {
-                    guard (yR-y)*(y-yL) > 0 else {
-                        detailed[t]?[xL] = y
-                        detailed[t]?[xR] = y
-                        return
-                    }
-                    let delta = yR-yL
-                    let sixth = 6.0*(y-0.5*(yL+yR))
-                    let deltaSix = delta*sixth
-                    let deltaSq = delta*delta
-                    if deltaSix > deltaSq {
-                        detailed[t]?[xL] = 3.0*y-2.0*yR
-                    }
-                    if deltaSix < -deltaSq {
-                        detailed[t]?[xR] = 3.0*y-2.0*yL
-                    }
-                }
+                let delta = yR-yL
+                let sixth = 6.0*(y-0.5*(yL+yR))
+                let deltaSix = delta*sixth
+                let deltaSq = delta*delta
+                detailed[t]?[xL] = deltaSix > deltaSq ? (3.0*y-2.0*yR) : yL
+                detailed[t]?[xR] = deltaSix < -deltaSq ? (3.0*y-2.0*yL) : yR
             }
         }
     }

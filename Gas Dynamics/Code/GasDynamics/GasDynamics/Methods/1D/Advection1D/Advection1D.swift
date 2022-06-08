@@ -44,7 +44,7 @@ public class Advection1D: Algorithm1D {
     }
     
     public override func solve() {
-        let solutions = time.nodes.reduce(into: [Time: Mesh]()) { solutions, t in
+        let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
             solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, x in
                 mesh[x] = f(x: x, t: t)
             }

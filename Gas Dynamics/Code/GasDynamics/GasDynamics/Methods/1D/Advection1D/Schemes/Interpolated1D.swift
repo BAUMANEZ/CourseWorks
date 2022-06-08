@@ -16,7 +16,7 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public var substep: Double {
-        return 10.0
+        return 100.0
     }
     
     public final var normC: Double {
@@ -33,7 +33,7 @@ public class InterpolatedAdvection1D: Advection1D {
                 else { return }
                 let delta = yR-yL
                 let sixth = 6.0*(y-0.5*(yR+yL))
-                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                for j in stride(from: xL.value, to: xR.value, by: (xR.value-xL.value)/substep) {
                     let xi = (j-xL.value)/space.step
                     result = Swift.max(result, (u(j, t)-(yL+xi*(delta+sixth*(1.0-xi)))).magnitude)
                 }
@@ -110,32 +110,13 @@ public class InterpolatedAdvection1D: Advection1D {
         })
     }
     
-    private final func Nf(in x: Double, xL: Double, yL: Double, y: Double, xR: Double, yR: Double) -> Double {
-        let xi = (x-xL)/space.step
-        let delta = yR-yL
-        let sixth = 6.0*(y-0.5*(yR+yL))
-        return yL+xi*(delta+sixth*(1.0-xi))
-    }
-    
-    public final override func f(x: Double, t: Double) -> Double? {
-        guard let _x = space.nodes.first(where: { $0-space.halfed <= x && $0+space.halfed >= x }) else { return nil }
-        let xL = Node(value: _x-space.halfed, side: .right)
-        let xM = Node(value: _x, side: .middle)
-        let xR = Node(value: _x+space.halfed, side: .left)
-        guard let y = detailed[t]?[xM],
-              let yL = detailed[t]?[xL],
-              let yR = detailed[t]?[xR]
-        else { return nil }
-        return Nf(in: x, xL: xL.value, yL: yL, y: y, xR: xR.value, yR: yR)
-    }
-    
     public final override func solve() {
         detailed[time.start] = space.nodes.reduce(into: DetailedMesh()) {
             $0[Node(value: $1, side: .middle)] = self.u0($1)
             let xL = $1-space.halfed
-            if xL>=space.start { $0[Node(value: xL, side: .right)] = self.u0(xL) }
+            $0[Node(value: xL, side: .right)] = self.u0(xL)
             let xR = $1+space.halfed
-            if xR<=space.end { $0[Node(value: xR, side: .left)] = self.u0(xR) }
+            $0[Node(value: xR, side: .left)] = self.u0(xR)
         }
         guard time.steps > 1 else { return }
         time.nodes[1...].forEach{ solve(for: $0) }
@@ -167,5 +148,31 @@ public class InterpolatedAdvection1D: Advection1D {
         detailed[t] = space.nodes.reduce(into: DetailedMesh()) {
             $0[Node(value: $1, side: .middle)] = drift(for: t, in: $1)
         }
+    }
+}
+
+extension InterpolatedAdvection1D {
+    public final func delta(t: Time, xL: Node, xR: Node) -> Double? {
+        guard let yL = detailed[t]?[xL],
+              let yR = detailed[t]?[xR]
+        else { return nil }
+        return yR-yL
+    }
+    public final func sixth(t: Time, xL: Node, x: Node, xR: Node) -> Double? {
+        guard let y = detailed[t]?[x],
+              let yL = detailed[t]?[xL],
+              let yR = detailed[t]?[xR]
+        else { return nil }
+        return 6.0*(y-0.5*(yR+yL))
+    }
+    public final func Nf(t: Time, x: Double, xL: Node, xM: Node, xR: Node) -> Double? {
+        guard let y = detailed[t]?[xM],
+              let yL = detailed[t]?[xL],
+              let yR = detailed[t]?[xR]
+        else { return nil }
+        let xi = (x-xL.value)/space.step
+        let delta = yR-yL
+        let sixth = 6.0*(y-0.5*(yR+yL))
+        return yL+xi*(delta+sixth*(1.0-xi))
     }
 }
