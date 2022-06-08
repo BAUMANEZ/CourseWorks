@@ -14,7 +14,7 @@ public class Algorithm1D: Algorithm {
     public let space: Grid
     
     public var plotStep: Int {
-        return 40
+        return 50
     }
     public init(a: Double, b: Double, h: Double, tau: Double, deadline: Double) {
         self.space = Grid(start: a, end: b, step: h)

@@ -74,13 +74,6 @@
 			path = 1D;
 			sourceTree = "<group>";
 		};
-		21C4EFF4284F9BCF00AC172D /* Collections */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Collections;
-			sourceTree = "<group>";
-		};
 		21C6F86A2848C028005846C7 /* Base */ = {
 			isa = PBXGroup;
 			children = (
@@ -138,7 +131,6 @@
 			isa = PBXGroup;
 			children = (
 				21ED477728441439001D61FA /* main.swift */,
-				21C4EFF4284F9BCF00AC172D /* Collections */,
 				21ED477E284414A9001D61FA /* Methods */,
 			);
 			path = GasDynamics;

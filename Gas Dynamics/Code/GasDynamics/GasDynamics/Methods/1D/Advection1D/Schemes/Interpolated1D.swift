@@ -16,7 +16,7 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public var substep: Double {
-        return 20.0
+        return 10.0
     }
     
     public final var normC: Double {
@@ -33,7 +33,7 @@ public class InterpolatedAdvection1D: Advection1D {
                 else { return }
                 let delta = yR-yL
                 let sixth = 6.0*(y-0.5*(yR+yL))
-                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
                     let xi = (j-xL.value)/space.step
                     result = Swift.max(result, (u(j, t)-(yL+xi*(delta+sixth*(1.0-xi)))).magnitude)
                 }
@@ -61,7 +61,7 @@ public class InterpolatedAdvection1D: Advection1D {
                 let deltaP = yPR-yPL
                 let sixth = 6.0*(y-0.5*(yR+yL))
                 let sixthP = 6.0*(yP-0.5*(yPR+yPL))
-                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
                     let xi = (j-xL.value)/space.step
                     let f = Swift.abs(u(j, t)-(yL+xi*(delta+sixth*(1.0-xi))))
                     let fP = Swift.abs(u(j, tP)-(yPL+xi*(deltaP+sixthP*(1.0-xi))))
@@ -89,7 +89,7 @@ public class InterpolatedAdvection1D: Advection1D {
                 let deltaP = yPR-yPL
                 let sixth = 6.0*(y-0.5*(yR+yL))
                 let sixthP = 6.0*(yP-0.5*(yPR+yPL))
-                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/200.0) {
+                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
                     let xi = (j-xL.value)/space.step
                     let f = Swift.abs(u(j, t)-(yL+xi*(delta+sixth*(1.0-xi))))
                     let fP = Swift.abs(u(j, tP)-(yPL+xi*(deltaP+sixthP*(1.0-xi))))
@@ -139,15 +139,13 @@ public class InterpolatedAdvection1D: Advection1D {
         }
         guard time.steps > 1 else { return }
         time.nodes[1...].forEach{ solve(for: $0) }
-        adjust()
-        
         let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
             guard detailed[t] != nil else { return () }
             solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, node in
                 let xL = Node(value: node-space.halfed, side: .right)
-                let xM = Node(value: node, side: .middle)
+                let x  = Node(value: node, side: .middle)
                 let xR = Node(value: node+space.halfed, side: .left)
-                guard let y = detailed[t]?[xM],
+                guard let y  = detailed[t]?[x],
                       let yL = detailed[t]?[xL],
                       let yR = detailed[t]?[xR]
                 else { return }
@@ -155,55 +153,19 @@ public class InterpolatedAdvection1D: Advection1D {
                 let sixth = 6.0*(y-0.5*(yR+yL))
                 for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
                     let xi = (j-xL.value)/space.step
-                    mesh[j] = yL+xi*(delta+sixth*(1.0-xi))
+                    let ttt = j == xL.value ? j+10e-11 : (j == xR.value ? j-10e-11 : j)
+                    mesh[ttt] = yL+xi*(delta+sixth*(1.0-xi))
                 }
             }
         }
         if let identifier = identifier {
             save(file: identifier, data: data(for: solutions))
         }
-//        let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
-//            var mesh: Mesh = [:]
-//            for x in stride(from: space.start+2.0*space.step, through: space.end, by: space.step/substep) {
-//                mesh[x] = f(x: x, t: t)
-//            }
-//            solutions[t] = mesh
-//        }
     }
     
     public func solve(for t: Time) {
         detailed[t] = space.nodes.reduce(into: DetailedMesh()) {
             $0[Node(value: $1, side: .middle)] = drift(for: t, in: $1)
-        }
-    }
-    
-    private final func adjust() {
-        for t in time.nodes {
-            guard detailed[t] != nil else { continue }
-            for node in space.nodes {
-                let xL = Node(value: node-space.halfed, side: .right)
-                let x = Node(value: node, side: .middle)
-                let xR = Node(value: node+space.halfed, side: .left)
-                guard let yL = detailed[t]?[xL],
-                      let y = detailed[t]?[x],
-                      let yR = detailed[t]?[xR]
-                else { continue }
-                guard (yR-y)*(y-yL) > 0 else {
-                    detailed[t]?[xL] = y
-                    detailed[t]?[xR] = y
-                    continue
-                }
-                let delta = yR-yL
-                let sixth = 6.0*(y-0.5*(yL+yR))
-                let deltaSix = delta*sixth
-                let deltaSq = delta*delta
-                if deltaSix > deltaSq {
-                    detailed[t]?[xL] = 3.0*y-2.0*yR
-                }
-                if deltaSix < -deltaSq {
-                    detailed[t]?[xR] = 3.0*y-2.0*yL
-                }
-            }
         }
     }
 }

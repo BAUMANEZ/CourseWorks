@@ -21,8 +21,10 @@ extension Advection1D {
                 let x  = Node(value: node, side: .middle)
                 let xL = Node(value: node-space.halfed, side: .right)
                 let xR = Node(value: node+space.halfed, side: .left)
-                if let yL = detailed[t]?[Node(value: xL.value, side: .left)] {
-                    detailed[t]?[xL] = yL
+                var yL: Double?
+                if let _yL = detailed[t]?[Node(value: xL.value, side: .left)] {
+                    yL = _yL
+                    detailed[t]?[xL] = _yL
                 }
                 guard let yLP = detailed[tP]?[xL],
                       let yP  = detailed[tP]?[x],
@@ -31,7 +33,25 @@ extension Advection1D {
                 let xi = 1.0-gamma
                 let delta = yRP-yLP
                 let sixth = 6.0*(yP-0.5*(yLP+yRP))
-                detailed[t]?[xR] = yLP+xi*(delta+sixth*(1.0-xi))
+                let yR = yLP+xi*(delta+sixth*(1.0-xi))
+                detailed[t]?[xR] = yR
+                if let yL = yL, let y = detailed[t]?[x] {
+                    guard (yR-y)*(y-yL) > 0 else {
+                        detailed[t]?[xL] = y
+                        detailed[t]?[xR] = y
+                        return
+                    }
+                    let delta = yR-yL
+                    let sixth = 6.0*(y-0.5*(yL+yR))
+                    let deltaSix = delta*sixth
+                    let deltaSq = delta*delta
+                    if deltaSix > deltaSq {
+                        detailed[t]?[xL] = 3.0*y-2.0*yR
+                    }
+                    if deltaSix < -deltaSq {
+                        detailed[t]?[xR] = 3.0*y-2.0*yL
+                    }
+                }
             }
         }
     }

@@ -20,8 +20,10 @@ extension Advection1D {
                 let x  = Node(value: node, side: .middle)
                 let xL = Node(value: node-space.halfed, side: .right)
                 let xR = Node(value: node+space.halfed, side: .left)
-                if let yL = detailed[t]?[Node(value: xL.value, side: .left)] {
-                    detailed[t]?[xL] = yL
+                var yL: Double?
+                if let _yL = detailed[t]?[Node(value: xL.value, side: .left)] {
+                    yL = _yL
+                    detailed[t]?[xL] = _yL
                 }
                 let xM = Node(value: node-space.step, side: .middle)
                 let xP = Node(value: node+space.step, side: .middle)
@@ -31,16 +33,34 @@ extension Advection1D {
                       let yP  = detailed[t]?[xP],
                       let yPP = detailed[t]?[xPP]
                 else { return () }
-                detailed[t]?[xR] = 0.5*(y+yP)-(1.0/6.0)*(deltaM(yL: y, y: yP, yR: yPP)-deltaM(yL: yM, y: y, yR: yP))
+                let yR = 0.5*(y+yP)-(1.0/6.0)*(deltaM(yL: y, y: yP, yR: yPP)-deltaM(yL: yM, y: y, yR: yP))
+                detailed[t]?[xR] = yR
+                if let yL = yL {
+                    guard (yR-y)*(y-yL) > 0 else {
+                        detailed[t]?[xL] = y
+                        detailed[t]?[xR] = y
+                        return
+                    }
+                    let delta = yR-yL
+                    let sixth = 6.0*(y-0.5*(yL+yR))
+                    let deltaSix = delta*sixth
+                    let deltaSq = delta*delta
+                    if deltaSix > deltaSq {
+                        detailed[t]?[xL] = 3.0*y-2.0*yR
+                    }
+                    if deltaSix < -deltaSq {
+                        detailed[t]?[xR] = 3.0*y-2.0*yL
+                    }
+                }
             }
         }
         
         private func deltaM(yL: Double, y: Double, yR: Double) -> Double {
             let deltaM = 0.5*(yL+yR)
-            guard (yR-y)*(y-yL) > .zero else { return .zero }
+            guard ((yR-y)*(y-yL)).sign > 0 else { return .zero }
             let min1 = 2.0*(yR-y)
             let min2 = 2.0*(y-yL)
-            return deltaM.sign*min(fabs(deltaM), fabs(min1), fabs(min2))
+            return deltaM.sign*min(Swift.abs(deltaM), Swift.abs(min1), Swift.abs(min2))
         }
     }
 }
