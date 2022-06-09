@@ -7,14 +7,13 @@
 
 import Foundation
 
-let c = 1.0
-let h = 1.0/2
-let profile: Advection1D.Profile = .M
+let c: Double = 1.0
+let h: Double = 1.0
+let profile: Advection1D.Profile = .tooth
 
-//let advection = Advection1D(c: c, h: h, profile: profile)
-//let ppm = Advection1D.PPM(c: c, h: h, profile: profile)
+let ppm = Advection1D.PPM(c: c, h: h, profile: profile)
 let ppml = Advection1D.PPML(c: c, h: h, profile: profile)
 
-print(ppml.normC)
-//print(ppml.normL)
-//print(ppml.normL2)
+//for h in [1.0, 0.5, 0.25] {
+//    print(Advection1D.PPML(c: c, h: h, profile: .cos).normL2)
+//}

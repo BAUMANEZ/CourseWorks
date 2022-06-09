@@ -25,16 +25,9 @@ extension Advection1D {
                 let xLP = Node(value: node-space.step-space.halfed, side: .right)
                 let xRP = Node(value: node-space.step+space.halfed, side: .left)
                 guard let yL = Nf(t: tP, x: xL.value-c*time.step, xL: xLP, xM: xP, xR: xRP),
-                      let yR = Nf(t: tP, x: xR.value-c*time.step, xL: xL, xM: x, xR: xR)
+                      let yR = Nf(t: tP, x: xR.value-c*time.step, xL: xL, xM: x, xR: xR),
+                      let y  = detailed[t]?[x]
                 else { return  }
-                let z = u(xL.value, t)
-                let v = u(xR.value, t)
-                let n = u((xL.value+xR.value)/2, t)
-                let y = 1.0/6.0*(z+4.0*n+v)
-                detailed[t]?[x] = y
-//                detailed[t]?[xL] = yL
-//                detailed[t]?[xR] = yR
-//                return
                 guard (yR-y)*(y-yL) > 0 else {
                     detailed[t]?[xL] = y
                     detailed[t]?[xR] = y

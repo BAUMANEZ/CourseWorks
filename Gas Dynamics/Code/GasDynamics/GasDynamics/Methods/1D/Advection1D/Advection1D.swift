@@ -11,6 +11,7 @@ public class Advection1D: Algorithm1D {
     public let c : Double
     public let u : (Double, Time) -> Double
     public let u0: (Double) -> Double
+    public let profile: String?
     
     public var gamma: Double {
         return time.step*c/space.step
@@ -22,17 +23,19 @@ public class Advection1D: Algorithm1D {
                 c : Double,
                 h : Double,
                 u : @escaping (Double, Time) -> Double,
-                u0: @escaping (Double) -> Double
+                u0: @escaping (Double) -> Double,
+                profile: String?
     ) {
         self.c = c
         self.u = u
         self.u0 = u0
+        self.profile = profile
         super.init(a: a, b: b, h: h, tau: h/c, deadline: T)
     }
     
     public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {
         let u = { x, t in return profile.f(x: x-c*t) }
-        self.init(a: profile.l1, b: profile.L, T: profile.T, c: c, h: h, u: u, u0: profile.f)
+        self.init(a: profile.l1, b: profile.L, T: profile.T, c: c, h: h, u: u, u0: profile.f, profile: profile.description)
     }
     
     //MARK: Drift along characteristics

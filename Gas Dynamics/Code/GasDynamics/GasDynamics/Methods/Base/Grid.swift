@@ -26,6 +26,15 @@ extension Algorithm {
             return step/2
         }
         
+        public final var json: [String: String] {
+            return [
+                "a": String(start),
+                "b": String(end),
+                "h": String(step),
+                "n": String(steps),
+            ]
+        }
+        
         private var _nodes: [Double]?
         public final var nodes: [Double] {
             guard let cached = _nodes else {

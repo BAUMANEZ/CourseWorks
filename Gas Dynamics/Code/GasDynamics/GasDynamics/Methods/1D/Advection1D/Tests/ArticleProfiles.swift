@@ -21,7 +21,7 @@ extension Advection1D {
         public var l12: Double { return  20.0 }
         public var l22: Double { return  70.0/3.0 }
         public var l2 : Double { return  30.0 }
-        public var L  : Double { return  200.0 }
+        public var L  : Double { return  400.0 }
         public var T  : Double { return  400.0 }
         
         public func f(x: Double) -> Double {
@@ -51,6 +51,17 @@ extension Advection1D {
                 default:
                     return 2.0*(x-l2)/(3.0*(l2-l12)) + 1.0
                 }
+            }
+        }
+        
+        public var description: String {
+            switch self {
+            case .rightTriangle: return "rightTriangle"
+            case .leftTriangle : return "leftTriangle"
+            case .rectangle    : return "rectangle"
+            case .tooth        : return "tooth"
+            case .cos          : return "cos"
+            case .M            : return "m"
             }
         }
     }
