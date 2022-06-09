@@ -9,7 +9,7 @@ import Foundation
 
 let c = 1.0
 let h = 1.0/2
-let profile: Advection1D.Profile = .tooth
+let profile: Advection1D.Profile = .M
 
 //let advection = Advection1D(c: c, h: h, profile: profile)
 //let ppm = Advection1D.PPM(c: c, h: h, profile: profile)

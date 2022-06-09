@@ -119,6 +119,7 @@ public class InterpolatedAdvection1D: Advection1D {
             $0[Node(value: xR, side: .left)] = self.u0(xR)
         }
         guard time.steps > 1 else { return }
+        
         time.nodes[1...].forEach{ solve(for: $0) }
         let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
             guard detailed[t] != nil else { return () }
