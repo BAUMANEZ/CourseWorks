@@ -19,6 +19,7 @@
 \newcommand{\picref}[1]{рис. \ref{#1}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\dhalf}{\dfrac{1}{2}}
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{$#2$}}
 
 \title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ ЗАДАЧ ГАЗОВОЙ ДИНАМИКИ}
 \group{ФН2-62Б}
@@ -36,7 +37,7 @@
 
     Целью данной курсовой работы является анализ улучшенного метода PPM -- кусочно-параболического метода на локальном шаблоне (PPML). Его основное отличие заключается в том, что граничные точки парабол внутри разностых ячеек определяются с предыдущего временного слоя по методу характеристик, что позволяет точно описывать разрывные решения и избегать накопления лишней диссипации.
     
-    В качестве анализа будет приведено сравнение точности методов PPM и PPML на примерах одномерных задач. Также проведем демонстрацию рассматриваемого метода на нескольких двумерных задач газовой динамики.
+    В качестве анализа будет приведено сравнение точности методов PPM и PPML на примерах одномерных задач.
 
     \newpage
     
@@ -63,7 +64,12 @@
 
     Выражение \eqref{parabolic_eq} является квадратурной формулой для соотнешния:
     \[
-        y(x_i) = \dfrac{1}{h} \displaystyle \int_{x_{i-\half}}^{x_{i+\half}} y(\chi) d\chi.
+        y(x_i) = \dfrac{1}{h} \displaystyle \int\limits_{x_{i-\half}}^{x_{i+\half}} y(\chi) d\chi.
+    \]
+
+    Определив параболу в ячейке в момент времени $ t_j $, можно вычислить $ \hat y(x_i) $ на следующем временном слое $ t_{j+1} $: 
+    \[
+        \hat y_i = \dfrac{1}{x_{i+\half}-x_{i-\half}} \int\limits_{x_{i-\half}}^{x_{i+\half}} y(x_i-a \tau) dx.
     \]
 
    Значение функции $ y(x) $ на границах при условиях гладкости и отсутствия экстремумов принадлежит отрезкам:
@@ -71,7 +77,7 @@
         \label{ppm_boundary}
         y_{i-\half} \in [y_{i-1}, y_i], \qquad y_{i+\half} \in [y_i, y_{i+1}], 
    \end{equation}
-   \noindent далее производится монотонизация функции внутри каждой разностной ячеки, в результате чего меняются граничные значения, а приводит к появлению разрывов.
+   \noindent далее производится монотонизация функции внутри каждой разностной ячеки, в результате чего меняются значения на границах, что приводит к появлению разрывов на них.
 
    Первым шагом ищем значение $y_{i+\half}$ интерполяционной процедурой четвертого порядка, в результате получаем значения:
    \[
@@ -84,22 +90,24 @@
 
     Чтобы обеспечить монотонность решения и выполнить условие \eqref{ppm_boundary}, значения $ \delta y_i $ нужно заменить на 
     \[
-        \delta_m y_i = 
-        \begin{cases}
-            \min(|\delta y_i|,\, 2|y_i - y_{i-1}|,\, 2|y_{i+1} - y_i|)\cdot sign(\delta y_i), & (y_{i+1} - y_i)(y_i - y_{i-1}) > 0, \\
-            0, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0.
-        \end{cases}  
+        \Scale[0.95] {
+            \delta_m y_i = 
+            \begin{cases}
+                \min(|\delta y_i|,\, 2|y_i - y_{i-1}|,\, 2|y_{i+1} - y_i|)\cdot sign(\delta y_i), & (y_{i+1} - y_i)(y_i - y_{i-1}) > 0, \\
+                0, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0.
+            \end{cases}  
+        }
     \]
 
     После определения всех граничных точек переходим к следующему шагу. В областях немонотонного решения $ y(x) $ следует переопределять значения $ y_i^L,\, y_i^R $. При этом возможны два сценария:
     \begin{itemize}
-        \item $ y_i $ является локальным экстремумом, тогда на всем отрезке $ [x_{i-\half}, x_{i+\half}] $ функция $ y(x) = \text{const} $, а значит:
+        \item $ y_i $ является локальным экстремумом, тогда на всем отрезке $ [x_{i-\half}, x_{i+\half}] $ функция $ y(x) $ должна быть постоянной, а значит:
         \begin{equation}
             \label{local_sup}
             y_i^L = y_i^R = y_i, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0;
         \end{equation}
                 
-        \item $ y_i $ лежит слишком близко к границе, а при условии $|\Delta y_i| < | y_i^{(6)} |$ парабола может иметь экстремум внутри разностной ячейки. В этом случае $ y_i^L $ и $ y_i^R $ должны быть выбраны так, чтобы сдвинуть его к границам:
+        \item $ y_i $ лежит слишком близко к границе -- при условии $|\Delta y_i| < | y_i^{(6)} |$ парабола может иметь экстремум внутри разностной ячейки. В этом случае $ y_i^L $ и $ y_i^R $ должны быть выбраны так, чтобы сдвинуть его к границам:
         \begin{equation}
             \label{boundary_sup}
             \begin{split}
@@ -114,12 +122,12 @@
     Cреднее значение данной функции на отрезке $ [x_{i+\half}-\alpha, x_{i+\half}], (\alpha > 0) $ задается формулой:
     \begin{equation}
         \label{average_positive}
-        \overline y_{i+\half}^L(\alpha) = \dfrac{1}{\alpha} \displaystyle \int_{x_{i+\half}-\alpha}^{x_{i+\half}} y(x) dx = y_i^R - \dfrac{\alpha}{2h}\Bigl[ \Delta y_i - \Bigl( 1 - \dfrac{2 \alpha}{3h} \Bigr)y_i^{(6)} \Bigr],
+        \overline y_{i+\half}^L(\alpha) = \dfrac{1}{\alpha} \displaystyle \int\limits_{x_{i+\half}-\alpha}^{x_{i+\half}} y(x) dx = y_i^R - \dfrac{\alpha}{2h}\Bigl[ \Delta y_i - \Bigl( 1 - \dfrac{2 \alpha}{3h} \Bigr)y_i^{(6)} \Bigr],
     \end{equation}
     \noindent а на отрезке $ [x_{i+\half}, x_{i+\half}+\alpha], (\alpha > 0)$:
     \begin{equation}
         \label{average_negative}
-        \overline y_{i+\half}^R = \dfrac{1}{\alpha} \displaystyle \int_{x_{i+\half}}^{x_{i+\half}+\alpha} y(x) dx = y_{i+1}^L  + \dfrac{\alpha}{2h} \Bigl[\Delta y_{i+1} + \Bigl( 1 - \dfrac{2\alpha}{3h} \Bigr) y_{i+1}^{(6)} \Bigr].
+        \overline y_{i+\half}^R = \dfrac{1}{\alpha} \displaystyle \int\limits_{x_{i+\half}}^{x_{i+\half}+\alpha} y(x) dx = y_{i+1}^L  + \dfrac{\alpha}{2h} \Bigl[\Delta y_{i+1} + \Bigl( 1 - \dfrac{2\alpha}{3h} \Bigr) y_{i+1}^{(6)} \Bigr].
     \end{equation}
 
     \subsection{Кусочно-параболический метод на локальном шаблоне. PPML}
@@ -131,20 +139,30 @@
             \label{ppml_boundary}
             \begin{split}
                 &y_{i+\half}(t_{j+1}) = y_i^R(t_{j+1}) = y_i^L(t_j) + \xi(\Delta y_i(t_j) + y_i^{(6)}(t_j)(1-\xi)), \\[0.7em]
-                &\xi = \dfrac{x - x_{i-\half}}{h} = 1 -  \dfrac{a \tau}{h};
+                &\xi = 1 -  \dfrac{a \tau}{h},
             \end{split}
         \end{equation}
+        \noindent что соответствует красной точке на \picref{fig:ppml_visual}.
 
         \item $ a < 0 $, следовательно
         \[
             \begin{split}
                 &y_{i+\half}(t_{j+1}) = y_i^R(t_j) = y_i^R(t_j) + \xi(\Delta y_{i+1}(t_j) + y_{i+1}^{(6)}(t_j)(1-\xi)), \\[0.7em]
-                &\xi = \dfrac{x - x_{i-\half}}{h} = 1 -  \dfrac{a \tau}{h}.
+                &\xi = -\dfrac{a \tau}{h},
             \end{split}  
         \]
+        \noindent что соответствует синей точке на \picref{fig:ppml_visual}.
     \end{enumerate}
 
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{ppml_visual.jpeg}
+        \caption{Перенос значений в граничных точках по характеристикам в методе PPML}
+        \label{fig:ppml_visual}
+    \end{figure}
+
     Алгоритм \eqref{ppml_boundary} реализован на локальном шаблоне, то есть для получения граничных точкек при переходе на следующий временной слой не нужно использовать информацию с соседних ячеек. Нахождение среднего значения на отрезке \eqref{average_positive}, \eqref{average_negative} и смещение экстремума \eqref{local_sup}, \eqref{boundary_sup} производятся аналогично.
+
 
     \subsection{Потоки и усредненное значение на отрезке}
 
@@ -159,7 +177,7 @@
     \begin{equation}
         \label{boundary_flow}
         \begin{split}
-            &F_{i+\half} = \dfrac{1}{\tau} \displaystyle \int_{t_j}^{t_{j+1}} F(y^\star(x_{i+\half}, t))dt = a^+ y_{i+\half}^L + a^- y_{i+\half}^R, \\[0.5em]
+            &F_{i+\half} = \dfrac{1}{\tau} \displaystyle \int\limits_{t_j}^{t_{j+1}} F(y^\star(x_{i+\half}, t))dt = a^+ y_{i+\half}^L + a^- y_{i+\half}^R, \\[0.5em]
             &a^+ = \max(0, a), \quad a^- = \min(a, 0).
         \end{split}
     \end{equation}
@@ -171,39 +189,164 @@
       \dfrac{\partial q}{\partial t} + a \dfrac{\partial q}{\partial x} = 0.  
     \end{equation}
 
-    Решением уравнения переноса является функция, сохраняющая свой профиль с течением времени, то есть $ y(x, t) = y_0(x-at) $, где $ u_0 $ -- начальный профиль. Это происходит по той причине, что профиль при сносе по характеристикам остается одинаковым. Если $\frac{dx}{dt} = a $ -- характеристика, то прямые $ x-at = b $ называют характеристическими. На каждой из таких прямых $ y = \text{const} $ и перемещается по ней с некоторой заданной скоростью $ a $. 
+    Решением уравнения переноса является функция, сохраняющая свой профиль с течением времени, то есть $ y(x, t) = y_0(x-at) $, где $ u_0 $ -- начальный профиль. Это происходит по той причине, что профиль при сносе по характеристике остается одинаковым. Если $\frac{dx}{dt} = a $ -- характеристика, то прямые $ x-at = b $ называют характеристическими. На каждой из таких прямых $ y = \text{const} $ и перемещается по ней с некоторой заданной скоростью $ a $. 
 
     Уравнение переноса – простейший пример, применяемый для проверки алгоритма на корректность. В задачах газодинамики оператор переноса является составной частью, поэтому любой численный метод для таких моделей обязан проходить проверку простейшим уравнением.
 
-    Рассмотрим задачу Коши для линейного уравнения переноса \eqref{convection-diffusion} c различными начальными условиями $ y_0 \colon$
-    \begin{gather*}
-        y_0(x) = \dfrac{x - l_1}{l_2 - l_1} \text{ -- левый треугольник}, \\[1em]
-        y_0(x) = \dfrac{l_2 - x}{l_2 - l_1} \text{ -- правый треугольник}, \\[1em]
-        y_0(x) = 1 \text{ -- прямоугольник}, \\[1em]
-        y_0(x) = \begin{cases}
-            -\dfrac{2(x-l_1)}{3(l_{11}-l_1)} + 1, & x \in [l_1, l_{11}), \\[0.7em]
-            \dfrac{1}{3}, & x \in [l_{11}, l_{22}], \\[0.7em]
-            \dfrac{2(x-l_{2})}{3(l_2 - l_{22})} + 1, & x \in (l_{22}, l2], \quad \text{-- зуб},
-        \end{cases}
-    \end{gather*}
-    \begin{gather*}
-        y_0(x) = \begin{cases}
-            -\dfrac{2(x-l_1)}{3(l_{12}-l_1)} + 1, & x \in [l_1, l_{12}), \\[0.7em]
-            \dfrac{2(x-l_{2})}{3(l_2 - l_{12})} + 1, & x \in [l_{12}, l2], \quad \text{-- M},
-        \end{cases}
-    \end{gather*}
-    \noindent где $ l = 520,\, l_1 = 10,\, l_2 = 30,\, l_{11} = \frac{50}{3},\, l_{22} = \frac{70}{3},\, l_{12} = 20,\, T = 400,\, h = 1,\, a = 1$.
-
-    Численное решение будем сравнивать с точным, имеющим вид: 
+    Рассмотрим задачу Коши для линейного уравнения переноса \eqref{convection-diffusion} c различными начальными условиями $ y_0.$ Численное решение будем сравнивать с точным, имеющим вид: 
     \[  y_0(x) = 
          \begin{cases}
             0, & x - at < l_1, \\
             u_0(x-at), & l_1 \leq x-at \leq l_2, \\
-            0, x-at > l_2.
+            0, & x-at > l_2.
          \end{cases} 
     \]
 
-    \section{Уравнение Брюггерса}
+    Оценивать решение будет по норме ошибки в пространстве $ L_2\colon $
+    \[
+        \|z\|_{L_2} = \Biggl( \int\limits_{0}^{T}\int\limits_{\Omega_h} z^2\, dx dt \Biggr)^{\tfrac{1}{2}}, \quad z = |y(x,t)-y_h(x,t)|,
+    \]
+    \noindent сходимость по ней является актуальной для рассматриваемых методов.
+
+    Рассмотрим несколько начальных профилей и проанализируем точность каждого из методов в различных сценариях. $ l = 520,\, l_1 = 10,\, l_2 = 30,\, l_{11} = \frac{50}{3},\, l_{22} = \frac{70}{3},\, l_{12} = 20,\, T = 400,\, h = 1,\, a = 1$.
+
+    \subsection{Правый треугольник}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = \dfrac{l_2 - x}{l_2 - l_1} \text{ -- правый треугольник}.
+    \]
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_rightTriangle.pdf}
+        \caption{Правый треугольник для PPM}
+        \label{fig:ppm_rightTriangle}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_rightTriangle.pdf}
+        \caption{Правый треугольник для PPML}
+        \label{fig:ppml_rightTriangle}
+    \end{figure}
+
+    \subsection{Левый треугольник}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = \dfrac{x - l_1}{l_2 - l_1} \text{ -- левый треугольник}.
+    \]
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_leftTriangle.pdf}
+        \caption{Левый треугольник для PPM}
+        \label{fig:ppm_leftTriangle}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_leftTriangle.pdf}
+        \caption{Левый треугольник для PPML}
+        \label{fig:ppml_leftTriangle}
+    \end{figure}
+
+    \pagebreak
+
+    \subsection{Прямоугольник}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = 1 \text{ -- прямоугольник}.
+    \]
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_rectangle.pdf}
+        \caption{Прямоугольник для PPM}
+        \label{fig:ppm_rectangle}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_rectangle.pdf}
+        \caption{Прямоугольник для PPML}
+        \label{fig:ppm_rectangle}
+    \end{figure}
+
+    \pagebreak
+    
+    \subsection{Буква М}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = \begin{cases}
+            -\dfrac{2(x-l_1)}{3(l_{12}-l_1)} + 1, & x \in [l_1, l_{12}), \\[1em]
+            \dfrac{2(x-l_{2})}{3(l_2 - l_{12})} + 1, & x \in [l_{12}, l2], \quad \text{-- M},
+        \end{cases}
+    \]
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_m.pdf}
+        \caption{M для PPM}
+        \label{fig:ppm_m}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_m.pdf}
+        \caption{M для PPML}
+        \label{fig:ppm_m}
+    \end{figure}
+
+    \pagebreak
+
+    \subsection{Косинус}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = \dfrac{1}{2} - \dfrac{1}{2} \cos\Bigl(\dfrac{2 \pi}{l_2 - l_1}(x-l_1)\Bigr) \text{ -- }\cos.
+    \]
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_cos.pdf}
+        \caption{Косинус для PPM}
+        \label{fig:ppm_cos}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_cos.pdf}
+        \caption{Косинус для PPML}
+        \label{fig:ppm_cos}
+    \end{figure}
+
+    \pagebreak
+
+    \subsection{Зуб}
+    Рассмотрим профиль:
+    \[
+        y_0(x) = \begin{cases}
+             -\dfrac{2(x-l_1)}{3(l_{11}-l_1)} + 1, & x \in [l_1, l_{11}), \\[0.7em]
+             \dfrac{1}{3}, & x \in [l_{11}, l_{22}],
+              \\[0.7em]
+             \dfrac{2(x-l_{2})}{3(l_2 - l_{22})} + 1, & x \in (l_{22}, l2], \quad \text{-- зуб}.
+        \end{cases}
+    \]
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_tooth.pdf}
+        \caption{Косинус для PPM}
+        \label{fig:ppm_tooth}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_tooth.pdf}
+        \caption{Косинус для PPML}
+        \label{fig:ppm_tooth}
+    \end{figure}
+
+    \pagebreak
 
     \section-{Заключение}
 

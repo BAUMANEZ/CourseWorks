@@ -23,7 +23,7 @@ extension Advection1D {
                 let xR = Node(value: node+space.halfed, side: .left)
                 let xP  = Node(value: node-space.step, side: .middle)
                 let xLP = Node(value: node-space.step-space.halfed, side: .right)
-                let xRP = Node(value: node-space.step+space.halfed, side: .left)
+                let xRP = Node(value: node-space.halfed, side: .left)
                 guard let yL = Nf(t: tP, x: xL.value-c*time.step, xL: xLP, xM: xP, xR: xRP),
                       let yR = Nf(t: tP, x: xR.value-c*time.step, xL: xL, xM: x, xR: xR),
                       let y  = detailed[t]?[x]

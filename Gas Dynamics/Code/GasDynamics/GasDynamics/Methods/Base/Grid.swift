@@ -61,9 +61,7 @@ extension Algorithm {
         }
         
         public final func node(for i: Int) -> Double? {
-            let node = Double(i)*step
-            guard node >= start && node <= end else { return nil }
-            return node
+            return (i > 0 && i < nodes.count) ? nodes[i] : nil
         }
         
         public static func == (lhs: Algorithm.Grid, rhs: Algorithm.Grid) -> Bool {
