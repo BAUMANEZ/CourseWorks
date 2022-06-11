@@ -9,14 +9,14 @@ import Foundation
 
 public class InterpolatedAdvection1D: Advection1D {
     public typealias DetailedMesh = [Node: Double]
-    public var detailed: [Time: DetailedMesh] = [:]
+    public var detailed: [Int: DetailedMesh] = [:]
     
     public var identifier: String? {
         return nil
     }
     
     private final var substep: Double {
-        return 4.0
+        return 16.0
     }
     
     private final var plotStep: Int {
@@ -47,21 +47,21 @@ public class InterpolatedAdvection1D: Advection1D {
     
     public final var normC: Double {
         var result = -Double.greatestFiniteMagnitude
-        time.nodes[1...].forEach { t in
-            guard detailed[t] != nil else { return }
-            space.nodes.forEach { node in
+        time.range(starting: 1).forEach { j in
+            guard detailed[j] != nil else { return }
+            space.nodes().forEach { node in
                 let xL = Node(value: node-space.halfed, side: .right)
                 let xM = Node(value: node, side: .middle)
                 let xR = Node(value: node+space.halfed, side: .left)
-                guard let y = detailed[t]?[xM],
-                      let yL = detailed[t]?[xL],
-                      let yR = detailed[t]?[xR]
+                guard let y = detailed[j]?[xM],
+                      let yL = detailed[j]?[xL],
+                      let yR = detailed[j]?[xR]
                 else { return }
                 let delta = yR-yL
                 let sixth = 6.0*(y-0.5*(yR+yL))
-                for j in stride(from: xL.value, to: xR.value, by: (xR.value-xL.value)/substep) {
-                    let xi = (j-xL.value)/space.step
-                    result = Swift.max(result, (u(j, t)-(yL+xi*(delta+sixth*(1.0-xi)))).magnitude)
+                for k in stride(from: xL.value, to: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (k-xL.value)/space.step
+                    result = Swift.max(result, (u(k, time.node(for: j))-(yL+xi*(delta+sixth*(1.0-xi)))).magnitude)
                 }
             }
         }
@@ -72,28 +72,28 @@ public class InterpolatedAdvection1D: Advection1D {
         return .zero
     }
     public final var normL2: Double {
-        return sqrt(time.nodes[0..<time.nodes.count-1].reduce(into: Double()) { global, t in
-            guard detailed[t] != nil else { return () }
-            global += space.nodes.reduce(into: Double()) { local, node in
-                let tP = t+time.step
+        return sqrt(time.range(starting: 1).reduce(into: Double()) { global, j in
+            guard detailed[j] != nil else { return () }
+            global += space.nodes().reduce(into: Double()) { local, node in
+                let jP = j-1
                 let xL = Node(value: node-space.halfed, side: .right)
                 let x  = Node(value: node, side: .middle)
                 let xR = Node(value: node+space.halfed, side: .left)
-                guard let y = detailed[t]?[x],
-                      let yL = detailed[t]?[xL],
-                      let yR = detailed[t]?[xR],
-                      let yP = detailed[tP]?[x],
-                      let yPL = detailed[tP]?[xL],
-                      let yPR = detailed[tP]?[xR]
+                guard let y = detailed[j]?[x],
+                      let yL = detailed[j]?[xL],
+                      let yR = detailed[j]?[xR],
+                      let yP = detailed[jP]?[x],
+                      let yPL = detailed[jP]?[xL],
+                      let yPR = detailed[jP]?[xR]
                 else { return }
                 let delta = yR-yL
                 let deltaP = yPR-yPL
                 let sixth = 6.0*(y-0.5*(yR+yL))
                 let sixthP = 6.0*(yP-0.5*(yPR+yPL))
-                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
-                    let xi = (j-xL.value)/space.step
-                    let z = pow((u(j, t)-(yL+xi*(delta+sixth*(1.0-xi)))), 2)
-                    let zP = pow(Swift.abs(u(j, tP)-(yPL+xi*(deltaP+sixthP*(1.0-xi)))), 2)
+                for k in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (k-xL.value)/space.step
+                    let z = pow((u(k, time.node(for: j))-(yL+xi*(delta+sixth*(1.0-xi)))), 2)
+                    let zP = pow(Swift.abs(u(k, time.node(for: jP))-(yPL+xi*(deltaP+sixthP*(1.0-xi)))), 2)
                     local += space.step*time.step*(zP-z)
                 }
             }
@@ -104,7 +104,7 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public final override func solve() {
-        detailed[time.start] = ([space.start-space.step]+space.nodes).reduce(into: DetailedMesh()) {
+        detailed[0] = ([space.node(for: -1)]+space.nodes()).reduce(into: DetailedMesh()) {
             let xL = Node(value: $1-space.halfed, side: .right)
             let xR = Node(value: $1+space.halfed, side: .left)
             let x  = Node(value: $1, side: .middle)
@@ -116,19 +116,19 @@ public class InterpolatedAdvection1D: Advection1D {
             $0[x]  = y
         }
         guard time.steps > 1 else { return }
-        time.nodes[1...].forEach{ solve(for: $0) }
+        time.range(starting: 1).forEach{ solve(for: $0) }
         var solutions: [Time: Mesh] = [:]
         let tttt = 4
-        for i in stride(from: 0, through: tttt*15, by: 15) {
-            let t = time.nodes[i]
-            guard detailed[t] != nil else { return () }
-            solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, node in
+        for j in stride(from: 0, through: tttt*15, by: 15) {
+            guard detailed[j] != nil else { return () }
+            let t = time.node(for: j)
+            solutions[t] = space.nodes().reduce(into: Mesh()) { mesh, node in
                 let xL = Node(value: node-space.halfed, side: .right)
                 let x  = Node(value: node, side: .middle)
                 let xR = Node(value: node+space.halfed, side: .left)
-                guard let y  = detailed[t]?[x],
-                      let yL = detailed[t]?[xL],
-                      let yR = detailed[t]?[xR]
+                guard let y  = detailed[j]?[x],
+                      let yL = detailed[j]?[xL],
+                      let yR = detailed[j]?[xR]
                 else { return }
                 mesh[x.value] = y
                 mesh[xL.value+10e-10] = yL
@@ -147,26 +147,23 @@ public class InterpolatedAdvection1D: Advection1D {
         }
     }
     
-    public func solve(for t: Time) {
-        detailed[t] = [:]
-        let tP = t-time.step
-        if t==24 {
-            let a = 4
-        }
-        space.nodes.forEach { node in
+    public func solve(for j: Int) {
+        detailed[j] = [:]
+        let jP = j-1
+        space.nodes().forEach { node in
             let x  = Node(value: node, side: .middle)
             let xL = Node(value: node-space.halfed, side: .right)
             let xR = Node(value: node+space.halfed, side: .left)
-            guard let leftFlow = flow(t: tP, xB: xL),
-                  let rightFlow = flow(t: tP, xB: xR),
-                  let y = detailed[tP]?[x]
+            guard let leftFlow = flow(j: jP, xB: xL),
+                  let rightFlow = flow(j: jP, xB: xR),
+                  let y = detailed[jP]?[x]
             else { return }
-            let f = y-1.0/(space.step)*(rightFlow-leftFlow)
-            detailed[t]?[x] = f
+            let f = y-1.0/space.step*(rightFlow-leftFlow)
+            detailed[j]?[x] = f
         }
     }
     
-    private func flow(t: Time, xB: Node) -> Double? {
+    private func flow(j: Int, xB: Node) -> Double? {
         let xL: Node
         let x : Node
         let xR: Node
@@ -179,32 +176,36 @@ public class InterpolatedAdvection1D: Advection1D {
             x  = Node(value: xB.value+space.halfed, side: .middle)
             xR = Node(value: xB.value+space.step, side: .left)
         }
-        guard let y = detailed[t]?[x],
-              let yL = detailed[t]?[xL],
-              let yR = detailed[t]?[xR]
+        guard let y  = detailed[j]?[x],
+              let yL = detailed[j]?[xL],
+              let yR = detailed[j]?[xR]
         else { return nil }
-        let h = c*time.step/space.step
         let delta = delta(yL: yL, yR: yR)
         let sixth = sixth(yL: yL, y: y, yR: yR)
-        let avg = c > 0 ? yR-0.5*h*(delta-(1-2.0/3.0*h)*sixth) : yL+0.5*h*(delta-(1-2.0/3.0*h)*sixth)
-        return F(avg)
+        let f: (Double) -> Double = {
+            let xi = ($0-xL.value)/self.space.step
+            return self.F(yL+xi*(delta+sixth*(1-xi)))
+            
+        }
+        let flow = c*time.step/6.0*(f(xR.value-c*time.step)+4*f(xR.value-0.5*time.step)+f(xR.value))
+        return flow
     }
 }
 
 extension InterpolatedAdvection1D {
-    public final func delta(t: Time, xL: Node, xR: Node) -> Double? {
-        guard let yL = detailed[t]?[xL],
-              let yR = detailed[t]?[xR]
+    public final func delta(j: Int, xL: Node, xR: Node) -> Double? {
+        guard let yL = detailed[j]?[xL],
+              let yR = detailed[j]?[xR]
         else { return nil }
         return delta(yL: yL, yR: yR)
     }
     public final func delta(yL: Double, yR: Double) -> Double {
         return yR-yL
     }
-    public final func sixth(t: Time, xL: Node, x: Node, xR: Node) -> Double? {
-        guard let y = detailed[t]?[x],
-              let yL = detailed[t]?[xL],
-              let yR = detailed[t]?[xR]
+    public final func sixth(j: Int, xL: Node, x: Node, xR: Node) -> Double? {
+        guard let y = detailed[j]?[x],
+              let yL = detailed[j]?[xL],
+              let yR = detailed[j]?[xR]
         else { return nil }
         return sixth(yL: yL, y: y, yR: yR)
     }
@@ -214,10 +215,10 @@ extension InterpolatedAdvection1D {
     public final func xi(x: Double, xL: Node) -> Double {
         return (x-xL.value)/space.step
     }
-    public final func Nf(t: Time, x: Double, xL: Node, xM: Node, xR: Node) -> Double? {
-        guard let y = detailed[t]?[xM],
-              let yL = detailed[t]?[xL],
-              let yR = detailed[t]?[xR]
+    public final func Nf(j: Int, x: Double, xL: Node, xM: Node, xR: Node) -> Double? {
+        guard let y = detailed[j]?[xM],
+              let yL = detailed[j]?[xL],
+              let yR = detailed[j]?[xR]
         else { return nil }
         let xi = (x-xL.value)/space.step
         let delta = yR-yL

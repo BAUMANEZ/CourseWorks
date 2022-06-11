@@ -30,7 +30,7 @@ public class Advection1D: Algorithm1D {
         self.u = u
         self.u0 = u0
         self.profile = profile
-        super.init(a: a, b: b, h: h, tau: 0.8*h/c, deadline: T)
+        super.init(a: a, b: b, h: h, tau: 0.5*h/c, deadline: T)
     }
     
     public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {
@@ -47,8 +47,8 @@ public class Advection1D: Algorithm1D {
     }
     
     public override func solve() {
-        let solutions = time.nodes[1...].reduce(into: [Time: Mesh]()) { solutions, t in
-            solutions[t] = space.nodes.reduce(into: Mesh()) { mesh, x in
+        let solutions = time.nodes(starting: 1).reduce(into: [Time: Mesh]()) { solutions, t in
+            solutions[t] = space.nodes().reduce(into: Mesh()) { mesh, x in
                 mesh[x] = f(x: x, t: t)
             }
         }

@@ -16,10 +16,19 @@ extension Algorithm {
         
         public let start : Double
         public let end   : Double
+        public let step  : Double
         public let steps : Int
         
-        public final var step: Double {
-            return (end-start)/Double(steps+1)
+        public final func range(starting: Int? = nil, ending: Int? = nil) -> ClosedRange<Int> {
+            let starting = starting ?? 0
+            var ending = ending ?? steps
+            if ending < 0 { ending = steps-ending }
+            guard ending >= starting else { return Int.max...Int.max }
+            return starting...ending
+        }
+        
+        public final func nodes(starting: Int? = nil, ending: Int? = nil) -> [Double] {
+            return range(starting: starting, ending: ending).compactMap{ self.node(for: $0) }
         }
         
         public final var halfed: Double {
@@ -35,33 +44,16 @@ extension Algorithm {
             ]
         }
         
-        private var _nodes: [Double]?
-        public final var nodes: [Double] {
-            guard let cached = _nodes else {
-                var values: [Double] = []
-                values.reserveCapacity(steps)
-                for x in stride(from: start, through: end, by: step) {
-                    values.append(x)
-                }
-                _nodes = values
-                return values
-            }
-            return cached
-        }
         
-        public init(start: Double, end: Double, steps: Int) {
-            self.start = start
-            self.end = end
-            self.steps = steps
-        }
         public init(start: Double, end: Double, step: Double) {
             self.start = start
             self.end = end
+            self.step = step
             self.steps = max(0, Int((end-start)/step) - 1)
         }
         
-        public final func node(for i: Int) -> Double? {
-            return (i > 0 && i < nodes.count) ? nodes[i] : nil
+        public final func node(for i: Int) -> Double {
+            return start+Double(i)*step
         }
         
         public static func == (lhs: Algorithm.Grid, rhs: Algorithm.Grid) -> Bool {
