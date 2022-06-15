@@ -23,8 +23,6 @@ public class InterpolatedAdvection1D: Advection1D {
         return time.steps/5
     }
     
-    private lazy var F: (Double) -> Double = { return self.c*$0 }
-    
     private final var metadata: Data? {
         let json: [String: Any] = [
             "type"   : "Advection",
@@ -104,42 +102,41 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public final override func solve() {
-        detailed[0] = ([space.node(for: -1)]+space.nodes()).reduce(into: DetailedMesh()) {
+        detailed[0] = space.nodes().reduce(into: DetailedMesh()) {
             let xL = Node(value: $1-space.halfed, side: .right)
-            let xR = Node(value: $1+space.halfed, side: .left)
             let x  = Node(value: $1, side: .middle)
-            let yL = self.u0(xL.value)
-            let yR = self.u0(xR.value)
+            let xR = Node(value: $1+space.halfed, side: .left)
+            let yL = u0(xL.value)
+            let yR = u0(xR.value)
             let y  = (yL+yR)/2.0
             $0[xL] = yL
-            $0[xR] = yR
             $0[x]  = y
+            $0[xR] = yR
         }
         guard time.steps > 1 else { return }
         time.range(starting: 1).forEach{ solve(for: $0) }
         var solutions: [Time: Mesh] = [:]
-        let tttt = 4
-        for j in stride(from: 0, through: tttt*15, by: 15) {
-            guard detailed[j] != nil else { return () }
+        let limit = 40
+        let stride = 1
+        for j in Swift.stride(from: 0, through: limit*stride, by: stride) {
+            guard detailed[j] != nil else { continue }
             let t = time.node(for: j)
             solutions[t] = space.nodes().reduce(into: Mesh()) { mesh, node in
                 let xL = Node(value: node-space.halfed, side: .right)
                 let x  = Node(value: node, side: .middle)
                 let xR = Node(value: node+space.halfed, side: .left)
-                guard let y  = detailed[j]?[x],
-                      let yL = detailed[j]?[xL],
+                guard let yL = detailed[j]?[xL],
+                      let y  = detailed[j]?[x],
                       let yR = detailed[j]?[xR]
                 else { return }
                 mesh[x.value] = y
-                mesh[xL.value+10e-10] = yL
-                mesh[xR.value-10e-10] = yR
-//                let delta = delta(yL: yL, yR: yR)
-//                let sixth = sixth(yL: yL, y: y, yR: yR)
-//                for j in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
-//                    let xi = (j-xL.value)/space.step
-//                    let ttt = j == xL.value ? j+10e-11 : (j == xR.value ? j-10e-11 : j)
-//                    mesh[ttt] = yL+xi*(delta+sixth*(1.0-xi))
-//                }
+                let delta = delta(yL: yL, yR: yR)
+                let sixth = sixth(yL: yL, y: y, yR: yR)
+                for j in Swift.stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (j-xL.value)/space.step
+                    let ttt = j == xL.value ? j+10e-11 : (j == xR.value ? j-10e-11 : j)
+                    mesh[ttt] = yL+xi*(delta+sixth*(1.0-xi))
+                }
             }
         }
         if let identifier = identifier {
@@ -158,7 +155,7 @@ public class InterpolatedAdvection1D: Advection1D {
                   let rightFlow = flow(j: jP, xB: xR),
                   let y = detailed[jP]?[x]
             else { return }
-            let f = y-1.0/space.step*(rightFlow-leftFlow)
+            let f = y-gamma*(rightFlow-leftFlow)
             detailed[j]?[x] = f
         }
     }
@@ -179,15 +176,17 @@ public class InterpolatedAdvection1D: Advection1D {
         guard let y  = detailed[j]?[x],
               let yL = detailed[j]?[xL],
               let yR = detailed[j]?[xR]
-        else { return nil }
-        let delta = delta(yL: yL, yR: yR)
-        let sixth = sixth(yL: yL, y: y, yR: yR)
-        let f: (Double) -> Double = {
-            let xi = ($0-xL.value)/self.space.step
-            return self.F(yL+xi*(delta+sixth*(1-xi)))
-            
-        }
-        let flow = c*time.step/6.0*(f(xR.value-c*time.step)+4*f(xR.value-0.5*time.step)+f(xR.value))
+        else { return .zero }
+//        let delta = delta(yL: yL, yR: yR)
+//        let sixth = sixth(yL: yL, y: y, yR: yR)
+//        let avg = c > 0 ? yR-0.5*gamma*(delta-sixth*(1.0-2.0/3.0*gamma)) : yL+0.5*gamma*(delta-sixth*(1-2.0/3.0*gamma))
+//        return c*avg
+//
+        let boundary = c > 0 ? xR.value : xL.value
+        let f1 = c*(Nf(x: boundary-c*time.step, xL: xL, yL: yL, y: y, yR: yR))
+        let f2 = c*(Nf(x: boundary-0.5*c*time.step, xL: xL, yL: yL, y: y, yR: yR))
+        let f3 = c*(Nf(x: boundary, xL: xL, yL: yL, y: y, yR: yR))
+        let flow = 1.0/6.0*(f1+4.0*f2+f3)
         return flow
     }
 }
@@ -219,7 +218,7 @@ extension InterpolatedAdvection1D {
         guard let y = detailed[j]?[xM],
               let yL = detailed[j]?[xL],
               let yR = detailed[j]?[xR]
-        else { return nil }
+        else { return .zero }
         let xi = (x-xL.value)/space.step
         let delta = yR-yL
         let sixth = 6.0*(y-0.5*(yR+yL))

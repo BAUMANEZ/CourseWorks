@@ -14,7 +14,7 @@ public class Advection1D: Algorithm1D {
     public let profile: String?
     
     public var gamma: Double {
-        return time.step*c/space.step
+        return c*time.step/space.step
     }
     
     public init(a : Double,

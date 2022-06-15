@@ -32,8 +32,8 @@ extension Advection1D {
                     detailed[j]?[xR] = y
                     return
                 }
-                let delta = yR-yL
-                let sixth = 6.0*(y-0.5*(yL+yR))
+                let delta = delta(yL: yL, yR: yR)
+                let sixth = sixth(yL: yL, y: y, yR: yR)
                 let deltaSix = delta*sixth
                 let deltaSq = delta*delta
                 detailed[j]?[xL] = deltaSix > deltaSq ? (3.0*y-2.0*yR) : yL
