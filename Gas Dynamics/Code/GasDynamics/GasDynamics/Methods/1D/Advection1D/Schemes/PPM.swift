@@ -22,12 +22,11 @@ extension Advection1D {
                 let xM  = Node(value: node-space.step, side: .middle)
                 let xP  = Node(value: node+space.step, side: .middle)
                 let xPP = Node(value: node+2.0*space.step, side: .middle)
-                guard let yMM = detailed[j]?[xMM],
-                      let yM  = detailed[j]?[xM],
-                      let y   = detailed[j]?[x],
-                      let yP  = detailed[j]?[xP],
-                      let yPP = detailed[j]?[xPP]
-                else { return () }
+                let yMM = detailed[j]?[xMM] ?? 0
+                let yM  = detailed[j]?[xM]  ?? 0
+                let y   = detailed[j]?[x]   ?? 0
+                let yP  = detailed[j]?[xP]  ?? 0
+                let yPP = detailed[j]?[xPP] ?? 0
                 let xL = Node(value: node-space.halfed, side: .right)
                 let xR = Node(value: node+space.halfed, side: .left)
                 let yL = 0.5*(yM+y)-(1.0/6.0)*(deltaM(yL: yM, y: y, yR: yP)-deltaM(yL: yMM, y: yM, yR: y))

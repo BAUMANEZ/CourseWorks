@@ -16,7 +16,7 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     private final var substep: Double {
-        return 16.0
+        return 4.0
     }
     
     private final var plotStep: Int {
@@ -116,9 +116,10 @@ public class InterpolatedAdvection1D: Advection1D {
         guard time.steps > 1 else { return }
         time.range(starting: 1).forEach{ solve(for: $0) }
         var solutions: [Time: Mesh] = [:]
-        let limit = 40
-        let stride = 1
-        for j in Swift.stride(from: 0, through: limit*stride, by: stride) {
+        for j in Swift.stride(from: 0, through: time.steps, by: plotStep) {
+//            let limit = 40
+//            let stride = 1
+//        for j in Swift.stride(from: 0, through: limit*stride, by: stride) {
             guard detailed[j] != nil else { continue }
             let t = time.node(for: j)
             solutions[t] = space.nodes().reduce(into: Mesh()) { mesh, node in
@@ -132,9 +133,9 @@ public class InterpolatedAdvection1D: Advection1D {
                 mesh[x.value] = y
                 let delta = delta(yL: yL, yR: yR)
                 let sixth = sixth(yL: yL, y: y, yR: yR)
-                for j in Swift.stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
-                    let xi = (j-xL.value)/space.step
-                    let ttt = j == xL.value ? j+10e-11 : (j == xR.value ? j-10e-11 : j)
+                for k in Swift.stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (k-xL.value)/space.step
+                    let ttt = k == xL.value ? k+10e-11 : (k == xR.value ? k-10e-11 : k)
                     mesh[ttt] = yL+xi*(delta+sixth*(1.0-xi))
                 }
             }

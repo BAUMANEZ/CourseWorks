@@ -30,7 +30,7 @@ public class Advection1D: Algorithm1D {
         self.u = u
         self.u0 = u0
         self.profile = profile
-        super.init(a: a, b: b, h: h, tau: 0.5*h/c, deadline: T)
+        super.init(a: a, b: b, h: h, tau: 0.8*h/c, deadline: T)
     }
     
     public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {

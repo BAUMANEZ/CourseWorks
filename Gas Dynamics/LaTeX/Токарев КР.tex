@@ -48,7 +48,7 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.5\textwidth]{ppm_visual.jpeg}
+        \includegraphics[width=0.5\textwidth]{ppm_visual.pdf}
         \caption{Парабола внутри разностной ячейки}
         \label{fig:ppm_visual}
     \end{figure}
@@ -65,11 +65,6 @@
     Выражение \eqref{parabolic_eq} является квадратурной формулой для соотнешния:
     \[
         y(x_i) = \dfrac{1}{h} \displaystyle \int\limits_{x_{i-\half}}^{x_{i+\half}} y(\chi) d\chi.
-    \]
-
-    Определив параболу в ячейке в момент времени $ t_j $, можно вычислить $ \hat y(x_i) $ на следующем временном слое $ t_{j+1} $: 
-    \[
-        \hat y_i = \dfrac{1}{x_{i+\half}-x_{i-\half}} \int\limits_{x_{i-\half}}^{x_{i+\half}} y(x_i-a \tau) dx.
     \]
 
    Значение функции $ y(x) $ на границах при условиях гладкости и отсутствия экстремумов принадлежит отрезкам:
@@ -156,8 +151,8 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.7\textwidth]{ppml_visual.jpeg}
-        \caption{Перенос значений в граничных точках по характеристикам в методе PPML}
+        \includegraphics[width=0.7\textwidth]{ppml_visual.pdf}
+        \caption{Перенос значений в граничных точках вдоль характеристик в методе PPML}
         \label{fig:ppml_visual}
     \end{figure}
 
@@ -186,7 +181,7 @@
 
     \begin{equation}
         \label{convection-diffusion}
-      \dfrac{\partial q}{\partial t} + a \dfrac{\partial q}{\partial x} = 0.  
+      \dfrac{\partial y}{\partial t} + a \dfrac{\partial y}{\partial x} = 0.  
     \end{equation}
 
     Решением уравнения переноса является функция, сохраняющая свой профиль с течением времени, то есть $ y(x, t) = y_0(x-at) $, где $ u_0 $ -- начальный профиль. Это происходит по той причине, что профиль при сносе по характеристике остается одинаковым. Если $\frac{dx}{dt} = a $ -- характеристика, то прямые $ x-at = b $ называют характеристическими. На каждой из таких прямых $ y = \text{const} $ и перемещается по ней с некоторой заданной скоростью $ a $. 
@@ -201,6 +196,47 @@
             0, & x-at > l_2.
          \end{cases} 
     \]
+
+    Определив параболу в ячейке в момент времени $ t_j $, можно вычислить $ \hat y(x_i) $ на следующем временном слое $ t_{j+1} $, применив интегро-интерполяционный метод к уравнению переноса в прямоугольнике $ \bigl[ x_{i-\half}, x_{i+\half} \bigr] \times [t_j, t_{j+1}] $: 
+    \[
+        \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} \dfrac{ \partial y(x, t) }{ \partial t } \, dt \, dx \,\, + \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, = \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} 0 \, dt \, dx \, \, = 0.
+    \]
+
+    Рассмотрим интегралы в левой части по отдельности: 
+    \[
+         \begin{split}
+            \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} \dfrac{ \partial y(x, t) }{ \partial t } \, dt \, dx \,\, &= \int \limits_{x_{i-\half}}^{x_{i+\half}} \Bigl[ y(x, t_{j+1}) - y(x, t_j)  \Bigr] \, dx = h \Bigl[ \dfrac{1}{h} \int \limits_{x_{i-\half}}^{x_{i+\half}} y(x, t_{j+1}) \, dx \,\,  -  \\ 
+            &- \dfrac{1}{h} \int \limits_{x_{i-\half}}^{x_{i+\half}} y(x, t_j) \, dx \Bigr] = h ( \overline y(x_i, t_{j+1}) - \overline y(x_i, t_j) ) = h( \hat y_i - y_i).
+         \end{split}
+    \]
+
+    Воспользуемся особенностью переноса значений по характеристикам для интеграла, подинтегральная функция которого является потоком (\picref{fig:flow_visual}):
+    \[
+        \begin{split}
+            \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, &= \int \limits_{t_j}^{t_{j+1}} a \bigl( y(x_{i+\half}, t) - y(y_{x-\half}, t) \bigr) \, dt \,\, =  \int \limits_{x_{i+\half}-a\tau}^{x_{i+\half}} a y(x, t_j) \, dt \,\, - \\
+            &- \int \limits_{x_{i-\half}-a\tau}^{x_{i-\half}} a y(x, t_j) \, dt = a\tau\bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \bigr).
+        \end{split}
+    \]
+
+    Объединяя оба интеграла получаем:
+    \begin{equation}
+        \begin{split}
+            h ( \hat y_i - y_i) &+ a\tau\bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \bigr) = 0 \,\, \Rightarrow \\[0.7em]
+            &\Rightarrow \,\, \hat y_i = y_i - \dfrac{ a\tau }{ h } \Bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \Bigr).
+        \end{split}
+        \label{center}
+    \end{equation}
+
+    Таким образом, используя формулу \eqref{center} мы можем переносить средние значения ячеек.
+
+    \pagebreak
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.75\textwidth]{flow_visual.pdf}
+        \caption{Интегрирование потока по пространству, вместо времени}
+        \label{fig:flow_visual}
+    \end{figure}
 
     Оценивать решение будет по норме ошибки в пространстве $ L_2\colon $
     \[
