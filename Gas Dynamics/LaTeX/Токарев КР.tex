@@ -21,7 +21,7 @@
 \newcommand{\dhalf}{\dfrac{1}{2}}
 \newcommand*{\Scale}[2][4]{\scalebox{#1}{$#2$}}
 
-\title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ ЗАДАЧ ГАЗОВОЙ ДИНАМИКИ}
+\title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ РЕШЕНИЯ ГИПЕРБОЛИЧЕСКИХ УРАВНЕНИЙ}
 \group{ФН2-62Б}
 \author{А.\,И.~Токарев}
 \supervisor{В.\,В.~Лукин}
@@ -48,12 +48,12 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.5\textwidth]{ppm_visual.pdf}
+        \includegraphics[width=0.75\textwidth]{ppm_visual.pdf}
         \caption{Парабола внутри разностной ячейки}
         \label{fig:ppm_visual}
     \end{figure}
 
-    Основная идея метода PPM заключается в следующем -- внутри отрезка $ [x_{i-\half}, x_{i+\half}] $ функцию $ y = y(x) $ можно аппроксимировать параболой:
+    Основная идея метода PPM заключается в следующем -- внутри отрезка $ [x_{i-\half}, x_{i+\half}] $ функцию $ y = y(x) $ можно аппроксимировать параболой [1]:
     \begin{equation}
     \begin{split}
         \label{parabolic_eq}
@@ -112,7 +112,7 @@
         \end{equation}
     \end{itemize}
 
-    После всех проделанных операция функцию $y(x)$ можно считать определенной на сетке $\Omega_h$. 
+    После всех проделанных операция функцию $y(x)$ можно считать определенной на сетке $\Omega_h$ [1, 2]. 
     
     Cреднее значение данной функции на отрезке $ [x_{i+\half}-\alpha, x_{i+\half}], (\alpha > 0) $ задается формулой:
     \begin{equation}
@@ -142,7 +142,7 @@
         \item $ a < 0 $, следовательно
         \[
             \begin{split}
-                &y_{i+\half}(t_{j+1}) = y_i^R(t_j) = y_i^R(t_j) + \xi(\Delta y_{i+1}(t_j) + y_{i+1}^{(6)}(t_j)(1-\xi)), \\[0.7em]
+                &y_{i+\half}(t_{j+1}) = y_i^R(t_{j+1}) = y_{i+1}^L(t_j) + \xi(\Delta y_{i+1}(t_j) + y_{i+1}^{(6)}(t_j)(1-\xi)), \\[0.7em]
                 &\xi = -\dfrac{a \tau}{h},
             \end{split}  
         \]
@@ -151,12 +151,12 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.7\textwidth]{ppml_visual.pdf}
+        \includegraphics[width=0.75\textwidth]{ppml_visual.pdf}
         \caption{Перенос значений в граничных точках вдоль характеристик в методе PPML}
         \label{fig:ppml_visual}
     \end{figure}
 
-    Алгоритм \eqref{ppml_boundary} реализован на локальном шаблоне, то есть для получения граничных точкек при переходе на следующий временной слой не нужно использовать информацию с соседних ячеек. Нахождение среднего значения на отрезке \eqref{average_positive}, \eqref{average_negative} и смещение экстремума \eqref{local_sup}, \eqref{boundary_sup} производятся аналогично.
+    Алгоритм \eqref{ppml_boundary} реализован на локальном шаблоне, то есть для получения граничных точкек при переходе на следующий временной слой не нужно использовать информацию с соседних ячеек. Нахождение среднего значения на отрезке \eqref{average_positive}, \eqref{average_negative} и смещение экстремума \eqref{local_sup}, \eqref{boundary_sup} производятся аналогично [2].
 
 
     \subsection{Потоки и усредненное значение на отрезке}
@@ -244,146 +244,192 @@
     \]
     \noindent сходимость по ней является актуальной для рассматриваемых методов.
 
-    Рассмотрим несколько начальных профилей и проанализируем точность каждого из методов в различных сценариях. $ l = 520,\, l_1 = 10,\, l_2 = 30,\, l_{11} = \frac{50}{3},\, l_{22} = \frac{70}{3},\, l_{12} = 20,\, T = 400,\, h = 1,\, a = 1$.
+    Рассмотрим несколько начальных профилей [3] и проанализируем точность каждого из методов в различных сценариях. $ l = 200,\, l_1 = 10,\, l_2 = 30,$
+    \noindent $ l_{11} = \frac{50}{3},\, l_{22} = \frac{70}{3},\, l_{12} = 20,\, T = 200,\, h = 1,\, a = 1$.
 
-    \subsection{Правый треугольник}
-    Рассмотрим профиль:
-    \[
-        y_0(x) = \dfrac{l_2 - x}{l_2 - l_1} \text{ -- правый треугольник}.
-    \]
-    
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_rightTriangle.pdf}
-        \caption{Правый треугольник для PPM}
-        \label{fig:ppm_rightTriangle}
-    \end{figure}
+    \subsection{Анализ точного вычисления граничных и серединных узлов }
 
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_rightTriangle.pdf}
-        \caption{Правый треугольник для PPML}
-        \label{fig:ppml_rightTriangle}
-    \end{figure}
-
-    \subsection{Левый треугольник}
-    Рассмотрим профиль:
-    \[
-        y_0(x) = \dfrac{x - l_1}{l_2 - l_1} \text{ -- левый треугольник}.
-    \]
-    
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_leftTriangle.pdf}
-        \caption{Левый треугольник для PPM}
-        \label{fig:ppm_leftTriangle}
-    \end{figure}
-
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_leftTriangle.pdf}
-        \caption{Левый треугольник для PPML}
-        \label{fig:ppml_leftTriangle}
-    \end{figure}
+    Рассмотрим, какой прирост дает метод PPML при числе Куранта $ \sigma = 1 $. В качестве иллюстрации приведем кусочно-линейный профиль -- правый треугольник.
 
     \pagebreak
 
-    \subsection{Прямоугольник}
-    Рассмотрим профиль:
+    Правый треугольник задается уравнением:
     \[
-        y_0(x) = 1 \text{ -- прямоугольник}.
+            y_0(x) = \dfrac{l_2 - x}{l_2 - l_1}.
     \]
-    
-    \begin{figure}[h]
+
+    На \picref{fig:ppm_rightTriangle_1} показано численное решение, полученное путем применения метода PPM. 
+
+     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_rectangle.pdf}
-        \caption{Прямоугольник для PPM}
-        \label{fig:ppm_rectangle}
+        \includegraphics[width=\textwidth]{sigma=1./advectionPPM_rightTriangle.pdf}
+        \caption{Правый треугольник для PPM при $ \sigma = 1 $}
+        \label{fig:ppm_rightTriangle_1}
     \end{figure}
 
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_rectangle.pdf}
-        \caption{Прямоугольник для PPML}
-        \label{fig:ppm_rectangle}
-    \end{figure}
+    Таблица вычисленных норм в пространстве $ L_2 $ в зависимости от шага:
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $2.89$ & $1.44$ & $0.72$ & $0.36$ & $0.18$ \\
+         \hline
+        \end{tabular}
+    \end{center}
+
+    Заметим, что на концах треугольников происходит уравнивание значений в ячейках $ y_i^L,\, y_i,\, y_i^R $, поэтому, например, вычисление нормы в пространтсве $C[a,b]$ неприменимо для данных методов, потому что ее значение не будет уменьшаться при измельчении шага на кусочно-линейных графиках.
 
     \pagebreak
-    
-    \subsection{Буква М}
-    Рассмотрим профиль:
+
+    На \picref{fig:ppml_rightTriangle_1} показано решение, полученное применением метода PPML. На концах треугольников параболы в каждой разностной ячейке передают значения гораздо точнее, чем в методе PPM.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{sigma=1./advectionPPML_rightTriangle.pdf}
+        \caption{Правый треугольник для PPML при $ \sigma = 1 $}
+        \label{fig:ppml_rightTriangle_1}
+    \end{figure}
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $2.86$ & $1.42$ & $0.71$ & $0.305$ & $0.17$ \\
+         \hline
+        \end{tabular}
+    \end{center}
+
+    Скорость стремления нормы к $ 0 $ практически идентична методу PPM, однако визуально график больше приближен к точному решению.
+
+    \subsection{Анализ кусочно-линейного графика при уменьшенном числе Куранта }
+
+    Возьмем $ \sigma = 0.8 $, в качестве примера рассмотрим профиль "зуб":
+
+    \pagebreak
+
     \[
         y_0(x) = \begin{cases}
-            -\dfrac{2(x-l_1)}{3(l_{12}-l_1)} + 1, & x \in [l_1, l_{12}), \\[1em]
-            \dfrac{2(x-l_{2})}{3(l_2 - l_{12})} + 1, & x \in [l_{12}, l2], \quad \text{-- M},
-        \end{cases}
+            -\dfrac{2(x-l_1)}{3(l_{11}-l_1)} + 1, & x \in [l_1, l_{11}), \\[0.7em]
+               \dfrac{1}{3}, & x \in [l_{11}, l_{22}],
+               \\[0.7em]
+           \dfrac{2(x-l_{2})}{3(l_2 - l_{22})} + 1, & x \in (l_{22}, l2].
+       \end{cases}   
     \]
 
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_m.pdf}
-        \caption{M для PPM}
-        \label{fig:ppm_m}
-    \end{figure}
+    На \picref{fig:ppm_tooth_08} заметна значительная диссипация и неодинаковые высоты на зубцах. 
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_m.pdf}
-        \caption{M для PPML}
-        \label{fig:ppm_m}
+        \includegraphics[width=\textwidth]{sigma=0.8/advectionPPM_tooth.pdf}
+        \caption{Зуб для PPM при $ \sigma = 0.8 $}
+        \label{fig:ppm_tooth_08}
     \end{figure}
+
+    Тем не менее, несмотря на диссипацию, сходимость по норме $ L_2 $ сохраняется.
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $0.8$ & $0.39$ & $0.195$ & $0.097$ & $0.04$ \\
+         \hline
+        \end{tabular}
+    \end{center}
 
     \pagebreak
 
-    \subsection{Косинус}
-    Рассмотрим профиль:
+    Метод PPML (\picref{fig:ppml_tooth_08}) характеризиуется менее выраженной диссипацией и более ровными "горбами". 
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{sigma=0.8/advectionPPML_tooth.pdf}
+        \caption{Зуб для PPML при $ \sigma = 0.8 $}
+        \label{fig:ppml_tooth_08}
+    \end{figure}
+
+    Таблица норм в зависимости от шага выглядит следующим образом:
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $0.7$ & $0.34$ & $0.187$ & $0.08$ & $0.03$ \\
+         \hline
+        \end{tabular}
+    \end{center}
+
+    \subsection{Анализ методов на гладком графике}
+
+    Пусть $ \sigma = 0.5 $, а гладким профилем будет "косинус":
     \[
-        y_0(x) = \dfrac{1}{2} - \dfrac{1}{2} \cos\Bigl(\dfrac{2 \pi}{l_2 - l_1}(x-l_1)\Bigr) \text{ -- }\cos.
+        y_0(x) = \dfrac{1}{2} - \dfrac{1}{2} \cos\Bigl(\dfrac{2 \pi}{l_2 - l_1}(x-l_1)\Bigr).
     \]
 
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_cos.pdf}
-        \caption{Косинус для PPM}
-        \label{fig:ppm_cos}
-    \end{figure}
-
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_cos.pdf}
-        \caption{Косинус для PPML}
-        \label{fig:ppm_cos}
-    \end{figure}
+    Как и следовало ожидать, несмотря на гладкость профиля, диссипация в случае метода PPM (\picref{fig:ppm_cos_05}), ровно как и в методе PPML (\picref{fig:ppml_cos_05}) остается, хотя и менее выраженная. 
 
     \pagebreak
 
-    \subsection{Зуб}
-    Рассмотрим профиль:
-    \[
-        y_0(x) = \begin{cases}
-             -\dfrac{2(x-l_1)}{3(l_{11}-l_1)} + 1, & x \in [l_1, l_{11}), \\[0.7em]
-             \dfrac{1}{3}, & x \in [l_{11}, l_{22}],
-              \\[0.7em]
-             \dfrac{2(x-l_{2})}{3(l_2 - l_{22})} + 1, & x \in (l_{22}, l2], \quad \text{-- зуб}.
-        \end{cases}
-    \]
-
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPM_tooth.pdf}
-        \caption{Косинус для PPM}
-        \label{fig:ppm_tooth}
+        \includegraphics[width=\textwidth]{sigma=0.5/advectionPPM_cos.pdf}
+        \caption{Косинус для PPM при $ \sigma = 0.5 $}
+        \label{fig:ppm_cos_05}
     \end{figure}
 
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.6\textwidth]{c=1/h=1./advectionPPML_tooth.pdf}
-        \caption{Косинус для PPML}
-        \label{fig:ppm_tooth}
-    \end{figure}
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $0.99$ & $0.18$ & $0.003$ & $0.00055$ & $2e{-5}$ \\
+         \hline
+        \end{tabular}
+    \end{center}
+
+    График сохраняет свою гладкость, однако происходят небольшие смещения в окрестностях оснований профилей. Хотя таблица сходимости показывает достаточно хороший результат для обоих методов, все же нельзя не отметить, что PPML равномернее и стабильнее передает точное решение, а также обладает мизерной диссипацией. 
 
     \pagebreak
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{sigma=0.5/advectionPPML_cos.pdf}
+        \caption{Косинус для PPML при $ \sigma = 0.5 $}
+        \label{fig:ppml_cos_05}
+    \end{figure}
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c|c|c|c| } 
+         \hline
+         Шаг & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         \hline
+         $\| \cdot \|_{L_2}$ & $0.99$ & $0.18$ & $0.003$ & $0.00055$ & $2e{-5}$ \\
+         \hline
+        \end{tabular}
+    \end{center}
 
     \section-{Заключение}
+
+    *ЗАКОНЧУ ЗАКЛЮЧЕНИЕ ЗАВТРА*
+
+    \newpage
+
+    \begin{thebibliography}{9}
+  
+        \bibitem{Corella} Corella P., Woodward P. The piecewise parabolic method for gas-dynamical simulations // J. Comput. Phys. $1984$. V.$54$. P. $174-201$.
+  
+        \bibitem{Article} М.\,В.\,Попов, С.\,Д.\,Устюгов, Кусочно-параболический метод на локальном шаблоне для задач газовой динамики, Ж. вычисл. матем. и матем. физ., $2007$, том $47$, номер $12$, $2055-2075$, c. $2056-2060$.
+  
+        \bibitem{Galanin} Галанин М.П. Методы численного анализа математических моделей/М.П. Галанин, Е.Б. Савенков.–М. : Изд-во МГТУ им. Н.Э. Баумана, 2010.–591, [1] с.: ил. (Математическое моделирование в технике и технологии)
+
+        \bibitem{Samarsky} А.\,А.\,Самарский, Ю.\,П.\,Попов, Разностные методы решения задач газовой динамики: Учеб. пособие: Для вузов -- $3$-е изд., доп. -- M.: Наука. Гл. ред. физ. мат. лит., $1992$. -- $424$ с.
+
+        \bibitem{Kulikovsky} А.\,Г.\,Куливокский, Н.\,В.\,Погорелов, А.\,Ю.\,Семенов, Математические вопросы численного решения гиперболических систем уравнений. -- М.: ФИЗМАТЛИТ, $2001$. -- $608$ с.
+  
+    \end{thebibliography}
 
 \end{document}
