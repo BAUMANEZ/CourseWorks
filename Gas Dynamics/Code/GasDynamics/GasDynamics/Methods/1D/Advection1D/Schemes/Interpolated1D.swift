@@ -34,7 +34,7 @@ public class InterpolatedAdvection1D: Advection1D {
             ],
             "speed": c,
             "norms"  : [
-                "C"  : nil,//String(normC),
+                "C"  : String(normC),
                 "L"  : nil,//String(normL),
                 "L2" : String(normL2),
                 "W2" : nil
@@ -67,7 +67,32 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     public final var normL: Double {
-        return .zero
+        time.range(starting: 1).reduce(into: Double()) { global, j in
+            guard detailed[j] != nil else { return () }
+            global += space.nodes().reduce(into: Double()) { local, node in
+                let jP = j-1
+                let xL = Node(value: node-space.halfed, side: .right)
+                let x  = Node(value: node, side: .middle)
+                let xR = Node(value: node+space.halfed, side: .left)
+                guard let y = detailed[j]?[x],
+                      let yL = detailed[j]?[xL],
+                      let yR = detailed[j]?[xR],
+                      let yP = detailed[jP]?[x],
+                      let yPL = detailed[jP]?[xL],
+                      let yPR = detailed[jP]?[xR]
+                else { return }
+                let delta = yR-yL
+                let deltaP = yPR-yPL
+                let sixth = 6.0*(y-0.5*(yR+yL))
+                let sixthP = 6.0*(yP-0.5*(yPR+yPL))
+                for k in stride(from: xL.value, through: xR.value, by: (xR.value-xL.value)/substep) {
+                    let xi = (k-xL.value)/space.step
+                    let z = Swift.abs(u(k, time.node(for: j))-(yL+xi*(delta+sixth*(1.0-xi))))
+                    let zP = Swift.abs(u(k, time.node(for: jP))-(yPL+xi*(deltaP+sixthP*(1.0-xi))))
+                    local += space.step*time.step*(zP-z)
+                }
+            }
+        }
     }
     public final var normL2: Double {
         return sqrt(time.range(starting: 1).reduce(into: Double()) { global, j in

@@ -15,11 +15,11 @@ let profile: Advection1D.Profile = .cos
 //let ppml = Advection1D.PPML(c: c, h: h, profile: profile)
 
 print("PPM")
-for h in [1.0, 0.5, 0.25, 0.125, 0.0625] {
-    print(Advection1D.PPM(c: c, h: h, profile: profile).normL2)
+for h in [1.0, 0.5, 0.25, 0.125] {
+    print(Advection1D.PPM(c: c, h: h, profile: profile).normL)
 }
 print("----")
 print("PPML")
-for h in [1.0, 0.5, 0.25, 0.125, 0.0625] {
-    print(Advection1D.PPML(c: c, h: h, profile: profile).normL2)
+for h in [1.0, 0.5, 0.25, 0.125] {
+    print(Advection1D.PPML(c: c, h: h, profile: profile).normL)
 }
