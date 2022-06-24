@@ -13,7 +13,7 @@
 
 \counterwithout{equation}{section}
 \counterwithout{figure}{section}
-\graphicspath{{pic/}}
+\graphicspath{{../pic/}}
 \frenchspacing 
 
 \newcommand{\picref}[1]{рис. \ref{#1}}
@@ -21,7 +21,7 @@
 \newcommand{\dhalf}{\dfrac{1}{2}}
 \newcommand*{\Scale}[2][4]{\scalebox{#1}{$#2$}}
 
-\title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ РЕШЕНИЯ ГИПЕРБОЛИЧЕСКИХ УРАВНЕНИЙ}
+\title{КУСОЧНО-ПАРАБОЛИЧЕСКИЙ МЕТОД НА ЛОКАЛЬНОМ ШАБЛОНЕ ДЛЯ РЕШЕНИЯ ГИПЕРБОЛИЧЕСКИХ УРАВНЕНИЙ В ЧАСТНЫХ ПРОИЗВОДНЫХ}
 \group{ФН2-62Б}
 \author{А.\,И.~Токарев}
 \supervisor{В.\,В.~Лукин}
@@ -216,15 +216,14 @@
     \[
         \begin{split}
             \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, &= \int \limits_{t_j}^{t_{j+1}} a \bigl( y(x_{i+\half}, t) - y(y_{x-\half}, t) \bigr) \, dt \,\, =  \int \limits_{x_{i+\half}-a\tau}^{x_{i+\half}} a y(x, t_j) \, dt \,\, - \\
-            &- \int \limits_{x_{i-\half}-a\tau}^{x_{i-\half}} a y(x, t_j) \, dt = a\tau\bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \bigr).
+            &- \int \limits_{x_{i-\half}-a\tau}^{x_{i-\half}} a y(x, t_j) \, dt = a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr).
         \end{split}
     \]
 
     Объединяя оба интеграла получаем:
     \begin{equation}
         \begin{split}
-            h ( \hat y_i - y_i) &+ a\tau\bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \bigr) = 0 \,\, \Rightarrow \\[0.7em]
-            &\Rightarrow \,\, \hat y_i = y_i - \dfrac{ a\tau }{ h } \Bigl( a \overline y(x_{i+\half}, t_j) - a \overline y(x_{i-\half}, t_j) \Bigr).
+            h ( \hat y_i - y_i) &+ a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr) = 0 \,\, \Rightarrow \,\, \hat y_i = y_i - \dfrac{ a\tau }{ h } \Bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \Bigr).
         \end{split}
         \label{center}
     \end{equation}
@@ -255,7 +254,7 @@
     Рассмотрим несколько начальных профилей [3] и проанализируем точность каждого из методов в различных сценариях. $ l = 200,\, l_1 = 10,\, l_2 = 30,$
     \noindent $ l_{11} = \frac{50}{3},\, l_{22} = \frac{70}{3},\, l_{12} = 20,\, T = 200,\, h = 1,\, a = 1$.
 
-    \subsection{Анализ точного вычисления граничных и серединных узлов }
+    \subsection{Анализ точного вычисления граничных и серединных узлов}
 
     Рассмотрим, какой прирост дает метод PPML при числе Куранта $ \sigma = 1 $. В качестве иллюстрации приведем кусочно-линейный профиль -- правый треугольник.
 
@@ -280,7 +279,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-          & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+          & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
          \hline
          $\| \cdot \|_{C}$ & $0.5125$ & $0.506$ & $0.503$ & $0.501$ & $0.5$
          \\
@@ -309,7 +308,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-        & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+        & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
          \hline 
          $\| \cdot \|_{C}$ & $0.5125$ & $0.505$ & $0.5029$ & $0.5025$ & $0.5$
          \\
@@ -354,7 +353,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
          \hline 
          $\| \cdot \|_{C}$ & $0.716$ & $0.7099$ & $0.7067$ & $0.7023$ & $0.7$
          \\
@@ -384,7 +383,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ 
+         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ 
          \\ 
          \hline
          $\| \cdot \|_{C}$ & $0.58$ & $0.56$ & $0.557$ & $0.554$ & $0.55$ 
@@ -420,7 +419,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
          \hline
          $\| \cdot \|_{C}$ & $0.244$ & $0.1117$ & $0.044$ & $0.019$ & $1e{-05}$
          \\
@@ -448,7 +447,7 @@
     \begin{center}
         \begin{tabular}{ |c|c|c|c|c|c| } 
          \hline
-         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.625 $ \\ 
+         & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
          \hline
          $\| \cdot \|_{C}$ & $0.048$ & $0.015$ & $0.005$ & $0.0016$ & $1e{-06}$
          \\
