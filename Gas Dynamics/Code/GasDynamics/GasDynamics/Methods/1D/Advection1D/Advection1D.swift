@@ -24,18 +24,19 @@ public class Advection1D: Algorithm1D {
                 h : Double,
                 u : @escaping (Double, Time) -> Double,
                 u0: @escaping (Double) -> Double,
+                sigma: Double,
                 profile: String?
     ) {
         self.c = c
         self.u = u
         self.u0 = u0
         self.profile = profile
-        super.init(a: a, b: b, h: h, tau: 0.5*h/c, deadline: T)
+        super.init(a: a, b: b, h: h, tau: sigma*h/c, deadline: T)
     }
     
-    public convenience init(c: Double = 1.0, h: Double = 1.0, profile: Profile) {
+    public convenience init(c: Double = 1.0, h: Double = 1.0, sigma: Double, profile: Profile) {
         let u = { x, t in return profile.f(x: x-c*t) }
-        self.init(a: profile.l1, b: profile.L, T: profile.T, c: c, h: h, u: u, u0: profile.f, profile: profile.description)
+        self.init(a: profile.l1, b: profile.L, T: profile.T, c: c, h: h, u: u, u0: profile.f, sigma: sigma, profile: profile.description)
     }
     
     //MARK: Drift along characteristics

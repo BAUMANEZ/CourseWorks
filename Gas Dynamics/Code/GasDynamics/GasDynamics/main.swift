@@ -8,18 +8,11 @@
 import Foundation
 
 let c: Double = 1.0
-let h: Double = 1.0
+let h: Double = 1.0/4.0
+let sigma: Double = 1.0/4.0
 let profile: Advection1D.Profile = .cos
 
-//let ppm = Advection1D.PPM(c: c, h: h, profile: profile)
-//let ppml = Advection1D.PPML(c: c, h: h, profile: profile)
-
-print("PPM")
-for h in [1.0, 0.5, 0.25, 0.125] {
-    print(Advection1D.PPM(c: c, h: h, profile: profile).normL)
-}
-print("----")
-print("PPML")
-for h in [1.0, 0.5, 0.25, 0.125] {
-    print(Advection1D.PPML(c: c, h: h, profile: profile).normL)
-}
+let method = Advection1D.PPML(c: c, h: h, sigma: sigma, profile: profile)
+print(method.normC)
+print(method.normL)
+print(method.normL2)

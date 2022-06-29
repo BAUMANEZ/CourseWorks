@@ -16,7 +16,7 @@ public class InterpolatedAdvection1D: Advection1D {
     }
     
     private final var substep: Double {
-        return 100.0
+        return 4.0
     }
     
     private final var plotStep: Int {
