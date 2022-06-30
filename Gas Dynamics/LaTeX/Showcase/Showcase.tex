@@ -9,6 +9,9 @@
 \usepackage[russian]{babel}
 \usepackage[listings,theorems]{tcolorbox}
 \usepackage{caption}
+\usepackage{booktabs}
+\usepackage{multirow,array}
+\usepackage{siunitx}
 \usepackage[labelsep=period]{caption}
 \setbeamertemplate{caption}[numbered]
 \graphicspath{{../pic}}
@@ -18,6 +21,8 @@
 \definecolor{spGreen}{HTML}{93DDC2}
 \definecolor{spBlue}{HTML}{007AFF}
 \definecolor{mainBackground}{HTML}{F9FEFC}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 \makeatletter
 \newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
@@ -55,31 +60,20 @@
 
     \begin{frame}{Постановка задачи}
         \begin{block}{Линейное уравнение переноса}
-         \begin{equation}
-             \label{convection-diffusion}
-             \dfrac{\partial y}{\partial t} + a \dfrac{\partial y}{\partial x} = 0.
-         \end{equation}
-        \end{block}
-
-        \begin{block}{Характеристики}
+            \begin{equation}
+                \label{convection-diffusion}
+                \dfrac{\partial y}{\partial t} + a \dfrac{\partial y}{\partial x} = 0.
+            \end{equation}
             Характеристикой уравнения \eqref{convection-diffusion} является множество точек $(x,t)$, удовлетворяющее уравнению:
             \begin{equation}
                 \label{characteristics}
                 \dfrac{dx}{dt} = a,    
             \end{equation}
-            \noindent то есть множество $x-at = b$. Таким образом, вдоль характеристики выполняется следующее равенство:
-            \[
-                \dfrac{dy}{dt} = 0.  
-            \]
-        \end{block}
-        \begin{block}{Точное решение}
+            \noindent то есть множество $x-at = b$.
             Точное решение линейного уравнения переноса \eqref{convection-diffusion} представляется в виде:
             \[ y(x, t) = y_0(x-at), \]
             \noindent где $ y_0 $ -- начальный профиль.
         \end{block}
-    \end{frame}
-
-    \begin{frame}{Постановка задачи}
         \begin{block}{Задача Коши (начальная задача)}
             \begin{equation}
                 \label{Cauchy}
@@ -94,53 +88,65 @@
             \end{equation}
             Решение задачи \eqref{Cauchy} заключается в сносе неизменного профиля по характеристикам. Его свойством является сохранение начального профиля $y_0$.
         \end{block}
+    \end{frame}
 
+    \begin{frame}{Постановка задачи}
         \begin{block}{Сетка}
             Введем сетку, на которой будем решать задачу:
             \[
-                \Omega_h = \Bigl\{ x_i = l_1 + i h,\,\, i = 1 \ldots n,\,\, h = \frac{l_2-l_1}{n-1} \Bigr\},
+                \Scale[0.95] {
+                    \Omega_h = \Bigl\{ x_i = l_1 + i h,\,\, i = 1 \ldots n,\,\, h = \frac{l_2-l_1}{n-1} \Bigr\},
+                }
             \]
             где $[l_1, l_2]$ -- отрезок, на котором определена сетка; $n$~--~число узлов; $h$ -- шаг. Определим $y(x)$ ее разностным аналогом $y_i=y(x_i)$ на этой сетке. Значения $y_i$ будем соотносить с \\[0.3em] узлами сетки, а $ y_{ i + \half} = y_i^R $ и $ y_{i - \half} = y_i^L $ -- с половинными узлами.
         \end{block}
-    \end{frame}
-
-    \begin{frame}{Интегро-интерполяционный метод. Перенос узлов}
-        Определив решения $y_i$ в момент времени $ t_j $, можно вычислить $ \hat y_i $ на следующем временном слое $ t_{j+1} $, применив интегро-интерполяционный метод к уравнению переноса в прямоугольнике $ \bigl[ x_{i-\half}, x_{i+\half} \bigr] \times [t_j, t_{j+1}] $:
+        \begin{block}{Интегро-интерполяционный метод. Перенос узлов}
+            Определив решения $y_i$ в момент времени $ t_j $, можно вычислить $ \hat y_i $ на следующем временном слое $ t_{j+1} $, применив интегро-интерполяционный метод к уравнению переноса в прямоугольнике $ \bigl[ x_{i-\half}, x_{i+\half} \bigr] \times [t_j, t_{j+1}] $:
         \[
-            \displaystyle \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} \dfrac{ \partial y(x, t) }{ \partial t } \, dt \, dx \,\, + \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, = \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} 0 \, dt \, dx \, \, = 0.
+            \Scale[0.95] {
+                \displaystyle \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} \dfrac{ \partial y(x, t) }{ \partial t } \, dt \, dx \,\, + \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, = \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} 0 \, dt \, dx \, \, = 0.
+            }
         \]
+        \end{block}
+    \end{frame}
+ 
+     \begin{frame}{Интегро-интерполяционный метод. Перенос узлов}
+       \begin{block}{}
         Рассмотрим интегралы по отдельности: 
         \[
+            \Scale[0.9] {
             \begin{split}
                 \int \limits_{x_{i-\half}}^{x_{i+\half}} \int \limits_{t_j}^{t_{j+1}} \dfrac{ \partial y(x, t) }{ \partial t } \, dt \, dx \,\, &= \int \limits_{x_{i-\half}}^{x_{i+\half}} \Bigl[ y(x, t_{j+1}) - y(x, t_j)  \Bigr] \, dx = h \Bigl[ \dfrac{1}{h} \int \limits_{x_{i-\half}}^{x_{i+\half}} y(x, t_{j+1}) \, dx \,\,  -  
                 \\ 
                 &- \dfrac{1}{h} \int \limits_{x_{i-\half}}^{x_{i+\half}} y(x, t_j) \, dx \Bigr] = h ( \overline y(x_i, t_{j+1}) - \overline y(x_i, t_j) ) = h( \hat y_i - y_i).
             \end{split}
+            }
         \]
-    \end{frame}
- 
-     \begin{frame}{Интегро-интерполяционный метод. Перенос узлов}
         Воспользуемся особенностью переноса значений по характеристикам для интеграла, подинтегральная функция которого является потоком (\picref{fig:flow_visual}):
         \[
-            \begin{split}
-                \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, &= \int \limits_{t_j}^{t_{j+1}} a \bigl( y(x_{i+\half}, t) - y(y_{x-\half}, t) \bigr) \, dt \,\, =  \int \limits_{x_{i+\half}-a\tau}^{x_{i+\half}} a y(x, t_j) \, dt \,\, - \\
-                &- \int \limits_{x_{i-\half}-a\tau}^{x_{i-\half}} a y(x, t_j) \, dt = a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr).
-            \end{split}
+            \Scale[0.9] {
+                \begin{split}
+                    \int \limits_{t_j}^{t_{j+1}} \int \limits_{x_{i-\half}}^{x_{i+\half}} a \dfrac{ \partial y(x,t) }{ \partial x } \, dx \, dt \,\, &= \int \limits_{t_j}^{t_{j+1}} a \bigl( y(x_{i+\half}, t) - y(y_{x-\half}, t) \bigr) \, dt \,\, =  \int \limits_{x_{i+\half}-a\tau}^{x_{i+\half}} a y(x, t_j) \, dt \,\, - \\
+                    &- \int \limits_{x_{i-\half}-a\tau}^{x_{i-\half}} a y(x, t_j) \, dt = a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr).
+                \end{split}
+            }
         \]
-        Объединяя оба интеграла получаем:
-        \begin{equation}
-            \begin{split}
-                h ( \hat y_i - y_i) &+ a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr) = 0 \,\, \Rightarrow \,\, \hat y_i = y_i - \dfrac{ a\tau }{ h } \Bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \Bigr).
-            \end{split}
-            \label{center}
-        \end{equation}
-        В соответствии с формулой \eqref{center} переносятся значения в узлах сетки $ y_i = y(x_i)$ на следующий временной слой.
+       \end{block}
      \end{frame}
  
-     \begin{frame}
+     \begin{frame}{Интегро-интерполяционный метод. Перенос узлов}
+        \begin{block}{}
+            Объединяя оба интеграла получаем:
+            \begin{equation}
+                \Scale[0.9] {
+                    h ( \hat y_i - y_i) + a\tau\bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \bigr) = 0 \,\, \Rightarrow \,\, \hat y_i = y_i - \dfrac{ a\tau }{ h } \Bigl( a \overline y_{i+\half} - a \overline y_{i-\half} \Bigr).
+                }
+                \label{center}
+            \end{equation}
+        \end{block}
          \begin{figure}[h]
              \centering
-             \includegraphics[width=0.95\textwidth]{flow_visual.pdf}
+             \includegraphics[width=0.7\textwidth]{flow_visual.pdf}
              \caption{Интегрирование потока по пространству, вместо времени}
              \label{fig:flow_visual}
          \end{figure}
@@ -168,18 +174,9 @@
         \end{figure}
     \end{frame}
 
-    \begin{frame}{Средние значения на отрезке}
-        Для выражение \eqref{parabolic_eq} выполняется соотношение:
-            \begin{equation}
-                \label{average}
-                \Scale[0.9] {
-                    y(x_i) = \dfrac{1}{h} \displaystyle \int\limits_{x_{i-\half}}^{x_{i+\half}} y(\chi) d\chi,
-                }
-            \end{equation}
-            \noindent то есть значения в узлах сетки $\Omega_h$ являются средними значениями.
-
+    \begin{frame}{Кусочно-параболический метод. PPM}
         \begin{block}{Среднее значение на отрезке}
-            После определения парабол можно считать средние значения на отрезках $ [x_{i+\half}-\alpha, x_{i+\half}] $ и $ [x_{i+\half}, x_{i+\half}+\alpha]\colon $
+            На отрезках $ [x_{i+\half}-\alpha, x_{i+\half}] $ и $ [x_{i+\half}, x_{i+\half}+\alpha] $ имеем средние значения:
             \begin{equation}
                 \label{average_positive}
                 \Scale[0.9] {
@@ -193,9 +190,6 @@
                 }
             \end{equation}
         \end{block}
-    \end{frame}
-
-    \begin{frame}{Кусочно-параболические методы. PPM и PPML}
         \begin{block}{Граничные значения в PPM}
             \[
                 y_i^R = y_{i+1}^L = y_{i+\half} = \dhalf(y_i + y_{i+1}) - \dfrac{1}{6}(\delta y_{i+1} - \delta y_i), \quad \delta y_i = \dhalf(y_{i+1} + y_{i-1}).
@@ -205,15 +199,16 @@
                 \Scale[0.95] {
                     \delta_m y_i = 
                     \begin{cases}
-                        \min(|\delta y_i|,\, 2|y_i - y_{i-1}|,\, 2|y_{i+1} - y_i|)\cdot sign(\delta y_i), & (y_{i+1} - y_i)(y_i - y_{i-1}) > 0, \\
+                        \min(|\delta y_i|,\, 2|y_i - y_{i-1}|,\, 2|y_{i+1} - y_i|)\cdot \text{sign}(\delta y_i), & (y_{i+1} - y_i)(y_i - y_{i-1}) > 0, \\
                         0, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0.
                     \end{cases}   
                 } 
             \]
         \end{block}
+    \end{frame}
 
+    \begin{frame}{Кусочно-параболический метод на локальном шаблоне. PPML}
         \begin{block}{Граничные значения в PPML}
-            В качестве альтернативы предлагает перенос граничных узлов по характеристикам. \\[0.5em] Пусть $ \frac{dx}{dt} = a $.
             \begin{itemize}
                 \item Если $ a > 0 $, то получаем:
                 \[
@@ -229,177 +224,167 @@
                 \]
             \end{itemize}
         \end{block}
-    \end{frame}
-
-    \begin{frame}{Монотонизация}
         \begin{figure}[h]
             \centering
-            \includegraphics[width=0.4\textwidth]{ppml_visual.pdf}
+            \includegraphics[width=0.5\textwidth]{ppml_visual.pdf}
             \caption{Перенос значений на границах вдоль характеристик в методе PPML}
             \label{fig:ppml_visual}
         \end{figure}
+    \end{frame}
+
+    \section{Тестирование и сравнение методов}
+    \begin{frame}{Монотонизация}
         \begin{block}{Избавление от локальных экстремумов}
             \begin{itemize}
                 \item $ y_i $ является локальным экстремумом, тогда:
                 \[
-                    y_i^L = y_i^R = y_i, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0;
+                    \Scale[0.9] {
+                        y_i^L = y_i^R = y_i, \quad (y_{i+1} - y_i)(y_i - y_{i-1}) \leq 0;
+                    }
                 \]       
                 \item $ y_i $ лежит слишком близко к границе:
                 \[
-                    \begin{split}
-                        y_i^L = 3y_i -2y_i^R, &\quad \Delta y_i \cdot y_i^{(6)} > (\Delta y_i)^2, \\
-                        y_i^R = 3y_i -2y_i^L, &\quad \Delta y_i \cdot y_i^{(6)} < -(\Delta y_i)^2.
-                    \end{split}  
+                    \Scale[0.9] {
+                        \begin{split}
+                            y_i^L = 3y_i -2y_i^R, &\quad \Delta y_i \cdot y_i^{(6)} > (\Delta y_i)^2, \\
+                            y_i^R = 3y_i -2y_i^L, &\quad \Delta y_i \cdot y_i^{(6)} < -(\Delta y_i)^2.
+                        \end{split}  
+                    }
                 \]
             \end{itemize}
         \end{block}
-    \end{frame}
-
-    \section{Тестирование и сравнение методов}
-    \begin{frame}{Тестирование и сравнение методов}
-        \begin{block}{Нормы ошибок решения в различных пространствах}
-            Норма ошибка в пространстве $C\colon$
+        \begin{block}{Тестирование и сравнение методов. Исходные параметры}
+            Примем $ l = 200,\, l_1 = 10,\, l_2 = 30, l_{11} = \frac{50}{3}, l_{22} = \frac{70}{3}, l_{12} = 20,\, T = 200,\, h = 1,\, a = 1$. Норму \\[0.4em] ошибки будем считать в пространствах $C,\,L_1,\,L_2$:
             \[
-                \Scale[0.97]{
-                    \|z\|_{C} = \max_{\Omega_h \times [0, T]} |z|, \quad z = |y(x,t)-y_h(x,t)|.
+                \Scale[0.8]{
+                    \|z\|_{C} = \displaystyle \max_{\Omega_h \times [0, T]} |z|, \quad \|z\|_{L_1} = \displaystyle \int\limits_{0}^{T}\int\limits_{\Omega_h} |z|\, dx dt, \quad z = |y(x,t)-y_h(x,t)|,
                 }
             \]
-            Норма ошибка в пространстве $L_1\colon$
             \[
-                \Scale[0.97]{
-                    \|z\|_{L_1} = \displaystyle \int\limits_{0}^{T}\int\limits_{\Omega_h} |z|\, dx dt, \quad z = |y(x,t)-y_h(x,t)|.
+                \Scale[0.8]{
+                    \|z\|_{L_2} = \Biggl( \displaystyle \int\limits_{0}^{T}\int\limits_{\Omega_h} z^2\, dx dt \Biggr)^{\tfrac{1}{2}}, \quad \text{где } z = |y(x,t)-y_h(x,t)|.
                 }
             \]
-            Норма ошибка в пространстве $L_2\colon$
-            \[
-                \Scale[0.97]{
-                    \|z\|_{L_2} = \Biggl( \displaystyle \int\limits_{0}^{T}\int\limits_{\Omega_h} z^2\, dx dt \Biggr)^{\tfrac{1}{2}}, \quad z = |y(x,t)-y_h(x,t)|.
-                }
-            \]
-        \end{block}
-        \begin{block}{Исходные параметры}
-            Рассмотрим несколько начальных профилей [3] и проанализируем точность каждого из методов в различных сценариях. Примем $ l = 200,\, l_1 = 10,\, l_2 = 30, l_{11} = \frac{50}{3}, l_{22} = \frac{70}{3},$
-            \noindent$ l_{12} = 20,\, T = 200,\, h = 1,\, a = 1$.
         \end{block}
     \end{frame}
 
     \begin{frame}{Анализ точного вычисления граничных и серединных узлов}
         \begin{figure}[h]
             \centering
-            \includegraphics[width=0.66\textwidth]{sigma=1./advectionPPM_rightTriangle.pdf}
+            \includegraphics[width=0.6\textwidth]{sigma=1./advectionPPM_rightTriangle.pdf}
             \caption{Правый треугольник для PPM при $ \sigma = 1 $}
             \label{fig:ppm_rightTriangle_1}
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-              & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
-             \hline
-             $\| \cdot \|_{C}$ & $0.5125$ & $0.506$ & $0.503$ & $0.501$ & $0.5$
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $25.6$ & $6.32$ & $1.57$ & $0.39$ & $0.1$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $2.89$ & $1.44$ & $0.72$ & $0.36$ & $0.18$ \\
-             \hline 
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для правого треугольника в методе PPM}
             \label{table:ltPPM}
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.5125 & 0.58 & 0.65 & 0.506 & 0.61 & 0.695 & 0.503 & 0.613 & 0.696
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 1.038 & 0.519 & 0.26 & 0.255 & 0.13 & 0.064 & 0.063 & 0.0315 & 0.0158
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.622 & 0.44 & 0.311 & 0.309 & 0.22 & 0.154 & 0.154 & 0.1087 & 0.077
+                    \\ \hline
+                \end{tabular}
+            }
         \end{table}
     \end{frame}
 
     \begin{frame}{Анализ точного вычисления граничных и серединных узлов}
         \begin{figure}[h]
             \centering
-            \includegraphics[width=0.66\textwidth]{sigma=1./advectionPPML_rightTriangle.pdf}
+            \includegraphics[width=0.6\textwidth]{sigma=1./advectionPPML_rightTriangle.pdf}
             \caption{Правый треугольник для PPML при $ \sigma = 1 $}
             \label{fig:ppml_rightTriangle_1}
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-            & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
-             \hline 
-             $\| \cdot \|_{C}$ & $0.5125$ & $0.505$ & $0.5029$ & $0.5025$ & $0.5$
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $25.6$ & $6.32$ & $1.57$ & $0.39$ & $0.1$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $2.86$ & $1.42$ & $0.71$ & $0.305$ & $0.17$
-             \\
-             \hline
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для правого треугольника в методе PPML}
             \label{table:ltPPML}
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.5125 & 0.5039 & 0.5544 & 0.50625 & 0.502 & 0.5487 & 0.5031 & 0.5001 & 0.5458
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 1.0375 & 0.5187 & 0.2593 & 0.255 & 0.1273 & 0.0637 & 0.063 & 0.03154 & 0.01577
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.6228 & 0.4404 & 0.3114 & 0.3087 & 0.2183 & 0.1544 & 0.1537 & 0.1087 & 0.0768  
+                    \\ \hline
+                \end{tabular}
+            }
         \end{table}
     \end{frame}
 
     \begin{frame}{Анализ кусочно-линейного графика при уменьшенном числе Куранта}
         \begin{figure}[h]
             \centering
-            \includegraphics[width=0.6\textwidth]{sigma=0.8/advectionPPM_tooth.pdf}
+            \includegraphics[width=0.55\textwidth]{sigma=0.8/advectionPPM_tooth.pdf}
             \caption{Зуб для PPM при $ \sigma = 0.8 $}
             \label{fig:ppm_tooth_08}
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-             & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
-             \hline 
-             $\| \cdot \|_{C}$ & $0.716$ & $0.7099$ & $0.7067$ & $0.7023$ & $0.7$
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $41.15$ & $10.14$ & $2.518$ & $0.62$ & $0.3$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $0.8$ & $0.39$ & $0.195$ & $0.097$ & $0.04$
-             \\
-             \hline
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для профиля "зуб" в методе PPM}
             \label{table:toothPPM}
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.525 & 0.84 & 0.754 & 0.5125 & 0.8375 & 0.7501 & 0.50625 & 0.835 & 0.7494 
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 2.1 & 1.05 & 0.525 & 0.5125 & 0.26 & 0.13 & 0.127 & 0.0633 & 0.032
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.9 & 0.63 & 0.45 & 0.44 & 0.311 & 0.22 & 0.22 & 0.154 & 0.11
+                    \\ \hline
+                \end{tabular}
+            }
         \end{table}
     \end{frame}
 
     \begin{frame}{Анализ кусочно-линейного графика при уменьшенном числе Куранта}
         \begin{figure}[h]
             \centering
-            \includegraphics[width=0.6\textwidth]{sigma=0.8/advectionPPML_tooth.pdf}
+            \includegraphics[width=0.55\textwidth]{sigma=0.8/advectionPPML_tooth.pdf}
             \caption{Зуб для PPML при $ \sigma = 0.8 $}
             \label{fig:ppml_tooth_08}
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-             & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ 
-             \\ 
-             \hline
-             $\| \cdot \|_{C}$ & $0.58$ & $0.56$ & $0.557$ & $0.554$ & $0.55$ 
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $39.85$ & $9.9$ & $2.2$ & $0.56$ & $0.27$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $0.7$ & $0.34$ & $0.187$ & $0.08$ & $0.03$ 
-             \\
-             \hline
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для профиля "зуб" в методе PPML}
             \label{table:toothPPML}
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.525 & 0.6437 & 0.6347 & 0.5125 & 0.6343 & 0.6262 & 0.50625 & 0.6297 & 0.6219
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 2.1 & 1.049 & 0.5249 & 0.5125 & 0.2563 & 0.1281 & 0.1265 & 0.0633 & 0.03164 
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.895 & 0.633 & 0.4478 & 0.4403 & 0.3113 & 0.2202 & 0.2183 & 0.1544 & 0.10916
+                    \\ \hline
+                \end{tabular}
+            }
         \end{table}
     \end{frame}
 
-    \begin{frame}{Анализ методов на гладком графике}
+    \begin{frame}{Анализ методов на непрерывном графике}
         \begin{figure}[h]
             \centering
             \includegraphics[width=0.6\textwidth]{sigma=0.5/advectionPPM_cos.pdf}
@@ -408,27 +393,27 @@
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-             & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
-             \hline
-             $\| \cdot \|_{C}$ & $0.244$ & $0.1117$ & $0.044$ & $0.019$ & $1e{-05}$
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $2.59$ & $0.327$ & $0.04$ & $0.005$ & $2e{-05}$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $0.99$ & $0.18$ & $0.003$ & $0.00055$ & $2e{-05}$ 
-             \\
-             \hline
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для косинуса в методе PPM}
             \label{table:cosPPM}
-        \end{table}    
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.078 & 0.244 & 0.242 & 0.039 & 0.11 & 0.156 & 0.0196 & 0.044 & 0.06 
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 0.195 & 0.098 & 0.048 & 0.0245 & 0.012 & 0.006 & 0.003 & 0.0015 & 0.00077 
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.028 & 0.02 & 0.014 & 0.005 & 0.0035 & 0.00245 & 0.00089 & 0.0006 & 0.00044
+                    \\ \hline
+                \end{tabular}
+            }
+        \end{table}
     \end{frame}
 
-    \begin{frame}{Анализ методов на гладком графике}
+    \begin{frame}{Анализ методов на непрерывном графике}
         \begin{figure}[h]
             \centering
             \includegraphics[width=0.6\textwidth]{sigma=0.5/advectionPPML_cos.pdf}
@@ -437,29 +422,36 @@
         \end{figure}
         \begin{table}[h]
             \centering
-            \begin{tabular}{ |c|c|c|c|c|c| } 
-             \hline
-             & $ h=1 $ &  $ h=0.5$ &  $ h=0.25 $ &  $ h=0.125 $ &  $ h=0.0625 $ \\ 
-             \hline
-             $\| \cdot \|_{C}$ & $0.048$ & $0.015$ & $0.005$ & $0.0016$ & $1e{-06}$
-             \\
-             \hline
-             $\| \cdot \|_{L_1}$ & $2.55$ & $0.32$ & $0.0398$ & $0.0049$ & $2e{-06}$
-             \\
-             \hline
-             $\| \cdot \|_{L_2}$ & $0.99$ & $0.18$ & $0.003$ & $0.00055$ & $2e{-06}$ 
-             \\
-             \hline
-            \end{tabular}
-            \\[0.1em]
             \caption{Нормы ошибок для косинуса в методе PPML}
             \label{table:cosPPML}
-         \end{table}
+            \scalebox{0.75} {
+                \begin{tabular}{|*{10}{C{.45in}|}}
+                    \hline
+                    & \multicolumn{3}{c|}{$h=1$} & \multicolumn{3}{c|}{$h=0.5$} & \multicolumn{3}{c|}{$h=0.25$} \\
+                    \cline{2-10}
+                    & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ & $\tau=1$ & $\tau=0.5$ & $\tau=0.25$ 
+                    \\ \hline
+                    $\| \cdot \|_{C}$ & 0.00615 & 0.0479 & 0.0576 & 0.00154 & 0.0158 & 0.01859 & 0.00039 & 0.00515 & 0.00599
+                    \\ \hline
+                    $\| \cdot \|_{L_1}$ & 0.19475 & 0.09738 & 0.0487 & 0.02449 & 0.01225 & 0.0061 & 0.00306 & 0.00153 & 0.00076
+                    \\ \hline
+                    $\| \cdot \|_{L_2}$ & 0.0277 & 0.01958 & 0.01384 & 0.005 & 0.00351 & 0.00248 & 0.00088 & 0.00059 & 0.00044
+                    \\ \hline
+                \end{tabular}
+            }
+        \end{table}
     \end{frame}
 
     \section{Заключение}
     \begin{frame}{Заключение}
-        Рассмотрен кусочно-параболический метод на локальном шаблоне. Выбор в пользу использования решений с предыдущего временного слоя, вместо интерполяционной процедуры, оказался удачным, так как обеспечивает более точное решение и уменьшенную диссипацию. Метод PPML был протестирован на ряде примеров, рассмотренных с различными шагами, числами Куранта и профилями. Точность оценивалась на основе норм разности между точным и численным решениям в пространствах $ C,\, L_1,\, L_2 $. В пространствах $L_1, \, L_2$ PPML оказался точнее во всех случаях. Однако в пространстве $C$ результат нельзя интерпретировать однозначно. Но как уже отмечалось, актуальной является сходимость нормы ошибки в $L_2$.
+        \begin{itemize}
+            \item Рассмотрены кусочно-параболический метод и его варинат -- кусочно-параболический метод на локальном шаблоне.
+            \item Снос по характеристикам граничных значений оказался удачным, потому что обеспечивает более точное решение и уменьшенную диссипацию.
+            \item Методы PPM и PPML протестированы на ряде примеров, рассмотренных с различными профилями и временными и пространственными шагами.
+            \item Точность оценивалась на основе норм разности между точным и численным решениям в пространствах $ C,\, L_1,\, L_2 $.
+            \item В пространствах $L_1, \, L_2$ PPML оказался точнее для всех рассмотренных профилей. 
+            \item В пространстве $C$ результат нельзя интерпретировать однозначно.
+        \end{itemize}
     \end{frame}
 
 \end{document}
